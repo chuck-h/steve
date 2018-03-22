@@ -1,7 +1,9 @@
 package de.rwth.idsg.steve.service;
 
 import de.rwth.idsg.steve.ocpp.*;
+import de.rwth.idsg.steve.ocpp.task.GetCompositeScheduleTask;
 import de.rwth.idsg.steve.ocpp.task.TriggerMessageTask;
+import de.rwth.idsg.steve.web.dto.ocpp.GetCompositeScheduleParams;
 import de.rwth.idsg.steve.web.dto.ocpp.TriggerMessageParams;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -48,6 +50,16 @@ public class ChargePointService16_Client extends ChargePointService15_Client {
         BackgroundService.with(executorService)
                          .forEach(task.getParams().getChargePointSelectList())
                          .execute(c -> getOcpp16Invoker().triggerMessage(c, task));
+
+        return requestTaskStore.add(task);
+    }
+
+    public int getCompositeSchedule(GetCompositeScheduleParams params) {
+        GetCompositeScheduleTask task = new GetCompositeScheduleTask(getVersion(), params);
+
+        BackgroundService.with(executorService)
+                         .forEach(task.getParams().getChargePointSelectList())
+                         .execute(c -> getOcpp16Invoker().getCompositeSchedule(c, task));
 
         return requestTaskStore.add(task);
     }
