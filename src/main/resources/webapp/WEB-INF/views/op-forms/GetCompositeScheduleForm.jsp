@@ -9,7 +9,7 @@
         </tr>
         <tr>
             <td>Duration (integer):</td>
-            <td><form:input path="duration" placeholder="required" /></td>
+            <td><form:input path="duration" /></td>
         </tr>
         <tr>
             <td>Charging Rate Unit :</td>

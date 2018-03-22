@@ -1,8 +1,10 @@
 package de.rwth.idsg.steve.service;
 
 import de.rwth.idsg.steve.ocpp.*;
+import de.rwth.idsg.steve.ocpp.task.ClearChargingProfileTask;
 import de.rwth.idsg.steve.ocpp.task.GetCompositeScheduleTask;
 import de.rwth.idsg.steve.ocpp.task.TriggerMessageTask;
+import de.rwth.idsg.steve.web.dto.ocpp.ClearChargingProfileParams;
 import de.rwth.idsg.steve.web.dto.ocpp.GetCompositeScheduleParams;
 import de.rwth.idsg.steve.web.dto.ocpp.TriggerMessageParams;
 import lombok.extern.slf4j.Slf4j;
@@ -12,6 +14,7 @@ import org.springframework.stereotype.Service;
 
 /**
  * @author Sevket Goekay <goekay@dbis.rwth-aachen.de>
+ * @author David Rerimassie <david@rerimassie.nl>
  * @since 13.03.2018
  */
 @Slf4j
@@ -60,6 +63,16 @@ public class ChargePointService16_Client extends ChargePointService15_Client {
         BackgroundService.with(executorService)
                          .forEach(task.getParams().getChargePointSelectList())
                          .execute(c -> getOcpp16Invoker().getCompositeSchedule(c, task));
+
+        return requestTaskStore.add(task);
+    }
+
+    public int clearChargingProfile(ClearChargingProfileParams params) {
+        ClearChargingProfileTask task = new ClearChargingProfileTask(getVersion(), params);
+
+        BackgroundService.with(executorService)
+                        .forEach(task.getParams().getChargePointSelectList())
+                        .execute(c -> getOcpp16Invoker().clearChargingProfile(c, task));
 
         return requestTaskStore.add(task);
     }
