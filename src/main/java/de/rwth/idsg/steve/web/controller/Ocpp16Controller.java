@@ -134,7 +134,8 @@ public class Ocpp16Controller extends Ocpp15Controller {
 
     @RequestMapping(value = SET_CHARGING_PATH, method = RequestMethod.GET)
     public String getSetChargingProfile(Model model) {
-        model.addAttribute("opVersion", "v1.6");
+        setCommonAttributes(model);
+        model.addAttribute(PARAMS, new SetChargingProfileParams());
         return getPrefix() + SET_CHARGING_PATH;
     }
 
@@ -167,6 +168,16 @@ public class Ocpp16Controller extends Ocpp15Controller {
             return  getPrefix() + CLEAR_CHARGING_PATH;
         }
         return REDIRECT_TASKS_PATH + getClient16().clearChargingProfile(params);
+    }
+
+    @RequestMapping(value = SET_CHARGING_PATH, method = RequestMethod.POST)
+    public String postSetChargingProfile(@Valid @ModelAttribute(PARAMS) SetChargingProfileParams params,
+                                           BindingResult result, Model model) {
+        if (result.hasErrors()) {
+            setCommonAttributes(model);
+            return  getPrefix() + SET_CHARGING_PATH;
+        }
+        return REDIRECT_TASKS_PATH + getClient16().setChargingProfile(params);
     }
 
     @RequestMapping(value = TRIGGER_MESSAGE_PATH, method = RequestMethod.POST)

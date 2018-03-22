@@ -27,7 +27,6 @@
         </ul>
     </div>
     <div class="op16-content">
-        <center><i>Not implemented.</i></center>
+        <%@ include file="../op-forms/SetChargingProfileForm.jsp" %>
     </div></div>
-</div></div>
 <%@ include file="../00-footer.jsp" %>

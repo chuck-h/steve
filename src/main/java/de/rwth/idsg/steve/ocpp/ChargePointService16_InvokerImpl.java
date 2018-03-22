@@ -53,8 +53,11 @@ public class ChargePointService16_InvokerImpl
 
     @Override
     public void setChargingProfile(ChargePointSelect cp, SetChargingProfileTask task) {
-        // TODO
-        throw new RuntimeException("Not implemented");
+        if (cp.isSoap()) {
+            create(cp).setChargingProfileAsync(task.getOcpp16Request(), cp.getChargeBoxId(), task.getOcpp16Handler(cp.getChargeBoxId()));
+        } else {
+            runPipeline(cp, task);
+        }
     }
 
     @Override

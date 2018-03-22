@@ -19,7 +19,7 @@ public class GetCompositeScheduleTask extends CommunicationTask<GetCompositeSche
     public GetCompositeScheduleTask(OcppVersion ocppVersion, GetCompositeScheduleParams params) {
         super(ocppVersion, params);
     }
-
+    //TODO handle ChargingSchedule in response
     @Override
     public OcppCallback<ResponseWrapper> defaultCallback() {
         return new DefaultOcppCallback<GetCompositeScheduleTask.ResponseWrapper>() {
