@@ -5,9 +5,12 @@ import de.rwth.idsg.steve.web.dto.ocpp.GetCompositeScheduleParams;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import ocpp.cp._2015._10.ChargingRateUnitType;
+import ocpp.cp._2015._10.ChargingSchedule;
+import ocpp.cp._2015._10.ChargingSchedulePeriod;
 import org.joda.time.DateTime;
 
 import javax.xml.ws.AsyncHandler;
+import java.util.List;
 
 /**
  * @author Sevket Goekay <goekay@dbis.rwth-aachen.de>
@@ -28,17 +31,43 @@ public class GetCompositeScheduleTask extends CommunicationTask<GetCompositeSche
                 String status = response.getStatus();
                 Integer connectorId = response.getConnectorId();
                 DateTime scheduleStart = response.getScheduleStart();
+                ChargingSchedule chargingSchedule = response.getChargingSchedule();
 
                 StringBuilder builder = new StringBuilder(status);
+                builder.append("</br>");
                 if (connectorId != null) {
-                    builder.append(" / Connector ID: ").append(connectorId);
-                }
-                if (scheduleStart != null) {
-                    builder.append(" / Schedule Start: ").append(scheduleStart);
+                    builder.append("</br>Connector ID: ").append(connectorId);
+                } if (scheduleStart != null) {
+                    builder.append("</br>Schedule Start: ").append(scheduleStart);
+                } if (chargingSchedule != null) {
+                    builder.append("</br></br><b>Charging Schedule</b>").append(csPrint(chargingSchedule));
                 }
                 addNewResponse(chargeBoxId, builder.toString());
             }
         };
+    }
+    private String csPrint(ChargingSchedule cs) {
+        String prettycs = "</br>";
+        if (cs.getDuration() != null)
+            prettycs += "Duration: " + cs.getDuration() + "</br>";
+        if (cs.getStartSchedule() != null)
+            prettycs += "Start Schedule: " + cs.getStartSchedule() + "</br>";
+        if (cs.getChargingRateUnit() != null)
+            prettycs += "Charging Rate Unit: " + cs.getChargingRateUnit() + "</br>";
+        if (cs.getChargingSchedulePeriod() != null) {
+            prettycs += "</br><b>Charging Schedule Periods</b></br>";
+            List<ChargingSchedulePeriod> list = cs.getChargingSchedulePeriod();
+            int i = 1;
+            for (ChargingSchedulePeriod element : list) {
+                /*prettycs += element.getStartPeriod() + "</br>" + element.getLimit()
+                        + "</br>" + element.getNumberPhases() + "</br>";*/
+                prettycs += String.valueOf(i+ ": ") + element + "</br>";
+                i++;
+            }
+        } if (cs.getMinChargingRate() != null)
+            prettycs += "Min Charging Rate: " + cs.getMinChargingRate() + "</br>";
+
+        return prettycs;
     }
 
     @Deprecated
@@ -86,7 +115,8 @@ public class GetCompositeScheduleTask extends CommunicationTask<GetCompositeSche
                 ocpp.cp._2015._10.GetCompositeScheduleResponse response = res.get();
                 success(chargeBoxId, new ResponseWrapper(response.getStatus().value(),
                                                         response.getConnectorId(),
-                                                        response.getScheduleStart()));
+                                                        response.getScheduleStart(),
+                                                        response.getChargingSchedule()));
             } catch (Exception e) {
                 failed(chargeBoxId, e);
             }
@@ -99,5 +129,6 @@ public class GetCompositeScheduleTask extends CommunicationTask<GetCompositeSche
         private final String status;
         private final Integer connectorId;
         private final DateTime scheduleStart;
+        private final ChargingSchedule chargingSchedule;
     }
 }

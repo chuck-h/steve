@@ -4,11 +4,13 @@ import de.rwth.idsg.steve.ocpp.*;
 import de.rwth.idsg.steve.web.dto.ocpp.SetChargingProfileParams;
 import ocpp.cp._2015._10.*;
 import org.joda.time.DateTime;
+import org.joda.time.DateTimeZone;
 import org.joda.time.LocalDateTime;
 
 import javax.xml.ws.AsyncHandler;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
+import java.util.*;
 
 import static de.rwth.idsg.steve.utils.DateTimeUtils.toDateTime;
 
@@ -43,20 +45,19 @@ public class SetChargingProfileTask extends CommunicationTask<SetChargingProfile
     @Deprecated
     @Override
     public ocpp.cp._2015._10.SetChargingProfileRequest  getOcpp16Request() {
-
         ChargingSchedulePeriod[] cspList = new ChargingSchedulePeriod[]
                 {
                         new ChargingSchedulePeriod()
                                 .withStartPeriod(0) // = 00:00
-                                .withLimit(new BigDecimal(11000).setScale(1, RoundingMode.HALF_UP))
+                                .withLimit(String.valueOf(11000))
                                 .withNumberPhases(3),
                         new ChargingSchedulePeriod()
                                 .withStartPeriod(28800) // = 08:00
-                                .withLimit(new BigDecimal(6000).setScale(1, RoundingMode.HALF_UP))
+                                .withLimit(String.valueOf(6000))
                                 .withNumberPhases(3),
                         new ChargingSchedulePeriod()
                                 .withStartPeriod(72000) // = 20:00
-                                .withLimit(new BigDecimal(11000).setScale(1, RoundingMode.HALF_UP))
+                                .withLimit(String.valueOf(11000))
                                 .withNumberPhases(3)
                 };
 
@@ -71,10 +72,26 @@ public class SetChargingProfileTask extends CommunicationTask<SetChargingProfile
                         .withChargingSchedule(new ChargingSchedule()
                                 .withDuration(86400) //24 hours
                                 .withStartSchedule(new DateTime(toDateTime(LocalDateTime.now())))
-                                //.withStartSchedule(params.getStartSchedule().toDateTime())
                                 .withChargingRateUnit(ChargingRateUnitType.W)
                                 .withChargingSchedulePeriod(cspList)));
 
+        /*return new ocpp.cp._2015._10.SetChargingProfileRequest()
+                .withConnectorId(params.getConnectorId())
+                .withCsChargingProfiles(new ChargingProfile()
+                        .withChargingProfileId(params.getChargingProfileId())
+                        .withTransactionId(params.getTransactionId())
+                        .withStackLevel(params.getStackLevel())
+                        .withChargingProfilePurpose(ChargingProfilePurposeType.valueOf(params.getChargingProfilePurpose().value()))
+                        .withChargingProfileKind(ChargingProfileKindType.fromValue(params.getChargingProfileKind().value()))
+                        .withRecurrencyKind(RecurrencyKindType.fromValue(params.getRecurrencyKind().value()))
+                        .withValidFrom(toDateTime(params.getValidFrom()))
+                        .withValidTo(toDateTime(params.getValidTo()))
+                        .withChargingSchedule(new ChargingSchedule()
+                                .withDuration(params.getDuration())
+                                .withStartSchedule(toDateTime(params.getStartSchedule()))
+                                .withChargingRateUnit(ChargingRateUnitType.fromValue(params.getChargingRateUnit().value()))
+                                .withChargingSchedulePeriod(params.getChargingSchedulePeriod())
+                        .withMinChargingRate(params.getMinChargingRate().toString())));*/
     }
 
     @Deprecated

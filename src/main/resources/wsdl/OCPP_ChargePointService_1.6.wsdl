@@ -48,7 +48,7 @@ This document is made available under the Creative Commons Attribution-NoDerivat
         <s:annotation>
           <s:documentation>Decimal with one digit fraction</s:documentation>
         </s:annotation>
-        <s:restriction base="s:decimal">
+        <s:restriction base="s:string">
           <s:fractionDigits value="1" />
         </s:restriction>
       </s:simpleType>	  
