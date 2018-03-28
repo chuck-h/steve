@@ -45,20 +45,19 @@ public class SetChargingProfileTask extends CommunicationTask<SetChargingProfile
     @Deprecated
     @Override
     public ocpp.cp._2015._10.SetChargingProfileRequest  getOcpp16Request() {
-        ChargingSchedulePeriod[] cspList = new ChargingSchedulePeriod[]
-                {
-                        new ChargingSchedulePeriod()
-                                .withStartPeriod(0) // = 00:00
-                                .withLimit(String.valueOf(11000))
-                                .withNumberPhases(3),
-                        new ChargingSchedulePeriod()
-                                .withStartPeriod(28800) // = 08:00
-                                .withLimit(String.valueOf(6000))
-                                .withNumberPhases(3),
-                        new ChargingSchedulePeriod()
-                                .withStartPeriod(72000) // = 20:00
-                                .withLimit(String.valueOf(11000))
-                                .withNumberPhases(3)
+        /*ChargingSchedulePeriod[] cspList = new ChargingSchedulePeriod[] {
+                    new ChargingSchedulePeriod()
+                            .withStartPeriod(0) // = 00:00
+                            .withLimit(new BigDecimal(11000).setScale(1, RoundingMode.HALF_UP))
+                            .withNumberPhases(3),
+                    new ChargingSchedulePeriod()
+                            .withStartPeriod(28800) // = 08:00
+                            .withLimit(new BigDecimal(6000).setScale(1, RoundingMode.HALF_UP))
+                            .withNumberPhases(3),
+                    new ChargingSchedulePeriod()
+                            .withStartPeriod(72000) // = 20:00
+                            .withLimit(new BigDecimal(11000).setScale(1, RoundingMode.HALF_UP))
+                            .withNumberPhases(3)
                 };
 
         return new ocpp.cp._2015._10.SetChargingProfileRequest()
@@ -73,9 +72,9 @@ public class SetChargingProfileTask extends CommunicationTask<SetChargingProfile
                                 .withDuration(86400) //24 hours
                                 .withStartSchedule(new DateTime(toDateTime(LocalDateTime.now())))
                                 .withChargingRateUnit(ChargingRateUnitType.W)
-                                .withChargingSchedulePeriod(cspList)));
+                                .withChargingSchedulePeriod(cspList)));*/
 
-        /*return new ocpp.cp._2015._10.SetChargingProfileRequest()
+        return new ocpp.cp._2015._10.SetChargingProfileRequest()
                 .withConnectorId(params.getConnectorId())
                 .withCsChargingProfiles(new ChargingProfile()
                         .withChargingProfileId(params.getChargingProfileId())
@@ -91,7 +90,7 @@ public class SetChargingProfileTask extends CommunicationTask<SetChargingProfile
                                 .withStartSchedule(toDateTime(params.getStartSchedule()))
                                 .withChargingRateUnit(ChargingRateUnitType.fromValue(params.getChargingRateUnit().value()))
                                 .withChargingSchedulePeriod(params.getChargingSchedulePeriod())
-                        .withMinChargingRate(params.getMinChargingRate().toString())));*/
+                        .withMinChargingRate(params.getMinChargingRate())));
     }
 
     @Deprecated

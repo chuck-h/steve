@@ -47,27 +47,27 @@ public class GetCompositeScheduleTask extends CommunicationTask<GetCompositeSche
         };
     }
     private String csPrint(ChargingSchedule cs) {
-        String prettycs = "</br>";
+        String pcs = "</br>";
         if (cs.getDuration() != null)
-            prettycs += "Duration: " + cs.getDuration() + "</br>";
+            pcs += "Duration: " + cs.getDuration() + "</br>";
         if (cs.getStartSchedule() != null)
-            prettycs += "Start Schedule: " + cs.getStartSchedule() + "</br>";
+            pcs += "Start Schedule: " + cs.getStartSchedule() + "</br>";
         if (cs.getChargingRateUnit() != null)
-            prettycs += "Charging Rate Unit: " + cs.getChargingRateUnit() + "</br>";
+            pcs += "Charging Rate Unit: " + cs.getChargingRateUnit() + "</br>";
+        if (cs.getMinChargingRate() != null)
+            pcs += "Min Charging Rate: " + cs.getMinChargingRate() + "</br>";
         if (cs.getChargingSchedulePeriod() != null) {
-            prettycs += "</br><b>Charging Schedule Periods</b></br>";
+            pcs += "</br><b>Charging Schedule Periods</b></br>";
             List<ChargingSchedulePeriod> list = cs.getChargingSchedulePeriod();
             int i = 1;
             for (ChargingSchedulePeriod element : list) {
                 /*prettycs += element.getStartPeriod() + "</br>" + element.getLimit()
                         + "</br>" + element.getNumberPhases() + "</br>";*/
-                prettycs += String.valueOf(i+ ": ") + element + "</br>";
+                pcs += String.valueOf(i+ ": ") + element + "</br>";
                 i++;
             }
-        } if (cs.getMinChargingRate() != null)
-            prettycs += "Min Charging Rate: " + cs.getMinChargingRate() + "</br>";
-
-        return prettycs;
+        }
+        return pcs;
     }
 
     @Deprecated
