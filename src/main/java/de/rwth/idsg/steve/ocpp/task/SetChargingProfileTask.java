@@ -73,24 +73,33 @@ public class SetChargingProfileTask extends CommunicationTask<SetChargingProfile
                                 .withStartSchedule(new DateTime(toDateTime(LocalDateTime.now())))
                                 .withChargingRateUnit(ChargingRateUnitType.W)
                                 .withChargingSchedulePeriod(cspList)));*/
+        ChargingSchedulePeriod chargingSchedulePeriod = new ChargingSchedulePeriod()
+                .withStartPeriod(params.getStartPeriod())
+                .withLimit(params.getLimit().setScale(1, RoundingMode.HALF_UP))
+                .withNumberPhases(params.getNumberPhases());
+
+        ChargingSchedule chargingSchedule = new ChargingSchedule()
+                .withDuration(params.getDuration())
+                .withStartSchedule(toDateTime(params.getStartSchedule()))
+                .withChargingRateUnit(ChargingRateUnitType.fromValue(params.getChargingRateUnit().value()))
+                .withChargingSchedulePeriod(chargingSchedulePeriod);
+                //.withMinChargingRate(params.getMinChargingRate().setScale(1, RoundingMode.HALF_UP));
+
+        ChargingProfile csChargingProfiles = new ChargingProfile()
+                .withChargingProfileId(params.getChargingProfileId())
+                .withTransactionId(params.getTransactionId())
+                .withStackLevel(params.getStackLevel())
+                .withChargingProfilePurpose(ChargingProfilePurposeType.fromValue(params.getChargingProfilePurpose().value()))
+                .withChargingProfileKind(ChargingProfileKindType.fromValue(params.getChargingProfileKind().value()))
+                //.withRecurrencyKind(RecurrencyKindType.fromValue(params.getRecurrencyKind().value()))
+                .withValidFrom(toDateTime(params.getValidFrom()))
+                .withValidTo(toDateTime(params.getValidTo()))
+                .withChargingSchedule(chargingSchedule);
+
 
         return new ocpp.cp._2015._10.SetChargingProfileRequest()
                 .withConnectorId(params.getConnectorId())
-                .withCsChargingProfiles(new ChargingProfile()
-                        .withChargingProfileId(params.getChargingProfileId())
-                        .withTransactionId(params.getTransactionId())
-                        .withStackLevel(params.getStackLevel())
-                        .withChargingProfilePurpose(ChargingProfilePurposeType.valueOf(params.getChargingProfilePurpose().value()))
-                        .withChargingProfileKind(ChargingProfileKindType.fromValue(params.getChargingProfileKind().value()))
-                        .withRecurrencyKind(RecurrencyKindType.fromValue(params.getRecurrencyKind().value()))
-                        .withValidFrom(toDateTime(params.getValidFrom()))
-                        .withValidTo(toDateTime(params.getValidTo()))
-                        .withChargingSchedule(new ChargingSchedule()
-                                .withDuration(params.getDuration())
-                                .withStartSchedule(toDateTime(params.getStartSchedule()))
-                                .withChargingRateUnit(ChargingRateUnitType.fromValue(params.getChargingRateUnit().value()))
-                                .withChargingSchedulePeriod(params.getChargingSchedulePeriod())
-                        .withMinChargingRate(params.getMinChargingRate())));
+                .withCsChargingProfiles(csChargingProfiles);
     }
 
     @Deprecated

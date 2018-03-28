@@ -24,13 +24,16 @@ public class SetChargingProfileParams extends MultipleChargePointSelect {
     private Integer connectorId;
 
     private ChargingProfile csChargingProfiles;
+    @NotNull(message = "Charging Profile ID is required.")
     private Integer chargingProfileId;
     private Integer transactionId;
+    @NotNull(message = "Stack Level is required.")
     private Integer stackLevel;
 
     @NotNull(message = "Charging Profile Purpose cannot be TxProfile outside transaction and can only be set at 1 Charge Point")
     private ChargingProfilePurposeTypeEnum chargingProfilePurpose;
 
+    @NotNull(message = "Charging Profile Kind is required.")
     private ChargingProfileKindTypeEnum chargingProfileKind;
     private RecurrencyKindTypeEnum recurrencyKind;
     private LocalDateTime validFrom;
@@ -39,11 +42,14 @@ public class SetChargingProfileParams extends MultipleChargePointSelect {
     private ChargingSchedule chargingSchedule;
     private Integer duration;
     private LocalDateTime startSchedule;
+    @NotNull(message = "Charging Rate Unit is required.")
     private ChargingRateUnitTypeEnum chargingRateUnit;
     private BigDecimal minChargingRate;
 
     private ChargingSchedulePeriod chargingSchedulePeriod;
+    @NotNull(message = "Start Period required.")
     private Integer startPeriod;
+    @NotNull(message = "Limit required.")
     private BigDecimal limit;
     private Integer numberPhases;
 

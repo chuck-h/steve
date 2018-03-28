@@ -13,8 +13,8 @@
 				<form:select path="transactionId" disabled="true" />
 			</td>
 		</tr>
-		<tr><td>Charging Profile ID (integer):</td><td><form:input path="chargingProfileId" placeholder="required" /></td></tr>
-		<tr><td>Stack Level (integer):</td><td><form:input path="stackLevel" placeholder="required" /></td></tr>
+		<tr><td>Charging Profile ID (integer):</td><td><form:input path="chargingProfileId" placeholder="" /></td></tr>
+		<tr><td>Stack Level (integer):</td><td><form:input path="stackLevel" placeholder="" /></td></tr>
 		<tr>
 			<td>Charging Profile Purpose :</td>
 			<td>
@@ -65,8 +65,8 @@
 		</tr>
 		<tr><td>Minimum Charging Rate (decimal) :</td><td><form:input path="minChargingRate" placeholder="optional" /></td></tr>
 		<tr><td><b>Charging Schedule Period</b></td></tr>
-		<tr><td>Start Period (integer) :</td><td><form:input path="startPeriod" placeholder="required" /></td></tr>
-		<tr><td>Limit (decimal) :</td><td><form:input path="limit" placeholder="required" /></td></tr>
+		<tr><td>Start Period (integer) :</td><td><form:input path="startPeriod" placeholder="" /></td></tr>
+		<tr><td>Limit (decimal) :</td><td><form:input path="limit" placeholder="" /></td></tr>
 		<tr><td>Number of Phases (integer) :</td><td><form:input path="numberPhases" placeholder="optional" /></td></tr>
 		<tr>
 			<td></td><td><div class="submit-button"><input type="submit" value="Perform"></div></td>
