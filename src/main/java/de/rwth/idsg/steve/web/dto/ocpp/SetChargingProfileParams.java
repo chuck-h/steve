@@ -1,13 +1,12 @@
 package de.rwth.idsg.steve.web.dto.ocpp;
 
-import de.rwth.idsg.steve.service.BackgroundService;
+import com.sun.org.apache.bcel.internal.generic.IF_ACMPEQ;
 import lombok.Getter;
 import lombok.Setter;
 import ocpp.cp._2015._10.ChargingProfile;
 import ocpp.cp._2015._10.ChargingProfilePurposeType;
 import ocpp.cp._2015._10.ChargingSchedule;
 import ocpp.cp._2015._10.ChargingSchedulePeriod;
-import org.joda.time.DateTime;
 import org.joda.time.LocalDateTime;
 
 import javax.validation.constraints.NotNull;
@@ -30,7 +29,7 @@ public class SetChargingProfileParams extends MultipleChargePointSelect {
     @NotNull(message = "Stack Level is required.")
     private Integer stackLevel;
 
-    @NotNull(message = "Charging Profile Purpose cannot be TxProfile outside transaction and can only be set at 1 Charge Point")
+    @NotNull(message = "Charging Profile Purpose cannot be 'TxProfile' outside transaction and can only be set at 1 Charge Point")
     private ChargingProfilePurposeTypeEnum chargingProfilePurpose;
 
     @NotNull(message = "Charging Profile Kind is required.")
@@ -60,12 +59,29 @@ public class SetChargingProfileParams extends MultipleChargePointSelect {
             this.connectorId = connectorId;
         }
     }
+    // --------------------------------------------------------------------------------------------------------
+    // Don't go beyond this line as it is dangerous, I'm not a cop, just a comment, but advise you not to do it
+    // --------------------------------------------------------------------------------------------------------
+    // I give up, let me just set something up so I won't forget this.
+    // TODO fix this TxProfile and Transaction ID problem because nothing works and not nothing as in no handling.
+    // This definitely won't make me forget.
 
-    public void setChargingProfilePurpose(ChargingProfilePurposeTypeEnum chargingProfilePurpose)
-    {
-        if (chargingProfilePurpose.value() == ChargingProfilePurposeType.TX_PROFILE.value() && transactionId == null)
-            this.chargingProfilePurpose = null;
-        else
-            this.chargingProfilePurpose = chargingProfilePurpose;
+    public void setTransactionId (Integer transactionId) {
+        if (transactionId != null && getChargePointSelectList().toArray().length > 1 ||
+                !chargingProfilePurpose.value().equals(ChargingProfilePurposeType.TX_PROFILE.value()) && transactionId != null) {
+            this.transactionId = null;
+        } else {
+            this.transactionId = transactionId;
+        }
     }
+
+    public void setChargingProfilePurpose(ChargingProfilePurposeTypeEnum chargingProfilePurpose) {
+        if  (chargingProfilePurpose.value().equals(ChargingProfilePurposeType.TX_PROFILE.value()) && getChargePointSelectList().toArray().length > 1 ||
+                chargingProfilePurpose.value().equals(ChargingProfilePurposeType.TX_PROFILE.value()) && transactionId == null) {
+            this.chargingProfilePurpose = null;
+        } else {
+            this.chargingProfilePurpose = chargingProfilePurpose;
+        }
+    }
+    // --------------------------------------------------------------------------------------------------------
 }

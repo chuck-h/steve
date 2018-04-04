@@ -49,8 +49,8 @@ public class OcppConfiguration {
 
     @PostConstruct
     public void init() {
-        List<Interceptor<? extends Message>> route = singletonList(new MediatorInInterceptor());
         List<Interceptor<? extends Message>> interceptors = asList(new MessageIdInterceptor(), fromAddressInterceptor);
+<<<<<<< HEAD
 
         // Just a dummy service to route incoming messages to the appropriate service version
         createOcppService(ocpp12Server, CONFIG.getRouterEndpointPath(), route);
@@ -58,6 +58,19 @@ public class OcppConfiguration {
         createOcppService(ocpp12Server, "/CentralSystemServiceOCPP12", interceptors);
         createOcppService(ocpp15Server, "/CentralSystemServiceOCPP15", interceptors);
         createOcppService(ocpp16Server, "/CentralSystemServiceOCPP16", interceptors);
+=======
+        List<Feature> logging = singletonList(LoggingFeatureProxy.INSTANCE.get());
+
+        createOcppService(ocpp12Server, "/CentralSystemServiceOCPP12", interceptors, logging);
+        createOcppService(ocpp15Server, "/CentralSystemServiceOCPP15", interceptors, logging);
+        createOcppService(ocpp16Server, "/CentralSystemServiceOCPP16", interceptors, logging);
+
+        // Just a dummy service to route incoming messages to the appropriate service version. This should be the last
+        // one to be created, since in MediatorInInterceptor we go over created/registered services and build a map.
+        //
+        List<Interceptor<? extends Message>> mediator = singletonList(new MediatorInInterceptor(springBus()));
+        createOcppService(ocpp12Server, CONFIG.getRouterEndpointPath(), mediator, Collections.emptyList());
+>>>>>>> 2b9b98f32bc57a8ca701e086d6b204b3b825cf49
     }
 
     /**
