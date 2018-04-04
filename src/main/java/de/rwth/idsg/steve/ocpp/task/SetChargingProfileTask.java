@@ -45,6 +45,7 @@ public class SetChargingProfileTask extends CommunicationTask<SetChargingProfile
     @Deprecated
     @Override
     public ocpp.cp._2015._10.SetChargingProfileRequest  getOcpp16Request() {
+        //Example from OCPP 1.6 specifications for quick testing
         /*ChargingSchedulePeriod[] cspList = new ChargingSchedulePeriod[] {
                     new ChargingSchedulePeriod()
                             .withStartPeriod(0) // = 00:00
@@ -59,7 +60,6 @@ public class SetChargingProfileTask extends CommunicationTask<SetChargingProfile
                             .withLimit(new BigDecimal(11000).setScale(1, RoundingMode.HALF_UP))
                             .withNumberPhases(3)
                 };
-
         return new ocpp.cp._2015._10.SetChargingProfileRequest()
                 .withConnectorId(2)
                 .withCsChargingProfiles(new ChargingProfile()
@@ -73,6 +73,7 @@ public class SetChargingProfileTask extends CommunicationTask<SetChargingProfile
                                 .withStartSchedule(new DateTime(toDateTime(LocalDateTime.now())))
                                 .withChargingRateUnit(ChargingRateUnitType.W)
                                 .withChargingSchedulePeriod(cspList)));*/
+        System.out.println(params.getTransactionId() + " " + params.getChargingProfilePurpose());
         ChargingSchedulePeriod chargingSchedulePeriod = new ChargingSchedulePeriod()
                 .withStartPeriod(params.getStartPeriod())
                 .withLimit(params.getLimit().setScale(1, RoundingMode.HALF_UP))
@@ -82,8 +83,8 @@ public class SetChargingProfileTask extends CommunicationTask<SetChargingProfile
                 .withDuration(params.getDuration())
                 .withStartSchedule(toDateTime(params.getStartSchedule()))
                 .withChargingRateUnit(ChargingRateUnitType.fromValue(params.getChargingRateUnit().value()))
-                .withChargingSchedulePeriod(chargingSchedulePeriod);
-                //.withMinChargingRate(params.getMinChargingRate().setScale(1, RoundingMode.HALF_UP));
+                .withChargingSchedulePeriod(chargingSchedulePeriod)
+                .withMinChargingRate(params.getMinChargingRate() != null ? params.getMinChargingRate().setScale(1, RoundingMode.HALF_UP) : null);
 
         ChargingProfile csChargingProfiles = new ChargingProfile()
                 .withChargingProfileId(params.getChargingProfileId())
@@ -91,11 +92,10 @@ public class SetChargingProfileTask extends CommunicationTask<SetChargingProfile
                 .withStackLevel(params.getStackLevel())
                 .withChargingProfilePurpose(ChargingProfilePurposeType.fromValue(params.getChargingProfilePurpose().value()))
                 .withChargingProfileKind(ChargingProfileKindType.fromValue(params.getChargingProfileKind().value()))
-                //.withRecurrencyKind(RecurrencyKindType.fromValue(params.getRecurrencyKind().value()))
+                .withRecurrencyKind(params.getRecurrencyKind() != null ? RecurrencyKindType.fromValue(params.getRecurrencyKind().value()) : null)
                 .withValidFrom(toDateTime(params.getValidFrom()))
                 .withValidTo(toDateTime(params.getValidTo()))
                 .withChargingSchedule(chargingSchedule);
-
 
         return new ocpp.cp._2015._10.SetChargingProfileRequest()
                 .withConnectorId(params.getConnectorId())
