@@ -36,37 +36,37 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
     @Autowired
     public void configureGlobal(AuthenticationManagerBuilder auth) throws Exception {
         auth.inMemoryAuthentication()
-            .passwordEncoder(NoOpPasswordEncoder.getInstance())
-            .withUser(CONFIG.getAuth().getUserName())
-            .password(CONFIG.getAuth().getPassword())
-            .roles("ADMIN");
+                .passwordEncoder(NoOpPasswordEncoder.getInstance())
+                .withUser(CONFIG.getAuth().getUserName())
+                .password(CONFIG.getAuth().getPassword())
+                .roles("ADMIN");
     }
 
     @Override
     public void configure(WebSecurity web) throws Exception {
         web.ignoring()
-           .antMatchers("/static/**")
-           .antMatchers("/views/**");
+                .antMatchers("/static/**")
+                .antMatchers("/views/**");
     }
 
     @Override
     protected void configure(HttpSecurity http) throws Exception {
         final String prefix = "/manager/";
         http
-            .authorizeRequests()
+                .authorizeRequests()
                 .antMatchers(prefix + "**").hasRole("ADMIN")
                 .and()
-            .sessionManagement()
+                .sessionManagement()
                 .invalidSessionUrl(prefix + "signin")
                 .and()
-            .formLogin()
+                .formLogin()
                 .loginPage(prefix + "signin")
                 .permitAll()
                 .and()
-            .logout()
+                .logout()
                 .logoutUrl(prefix + "signout")
                 .and()
-            .httpBasic();
+                .httpBasic();
     }
 
 }
