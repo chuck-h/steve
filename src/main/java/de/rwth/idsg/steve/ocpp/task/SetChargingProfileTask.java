@@ -73,7 +73,6 @@ public class SetChargingProfileTask extends CommunicationTask<SetChargingProfile
                                 .withStartSchedule(new DateTime(toDateTime(LocalDateTime.now())))
                                 .withChargingRateUnit(ChargingRateUnitType.W)
                                 .withChargingSchedulePeriod(cspList)));*/
-        System.out.println(params.getTransactionId() + " " + params.getChargingProfilePurpose());
 
         ChargingSchedulePeriod chargingSchedulePeriod = new ChargingSchedulePeriod()
                 .withStartPeriod(params.getStartPeriod())
