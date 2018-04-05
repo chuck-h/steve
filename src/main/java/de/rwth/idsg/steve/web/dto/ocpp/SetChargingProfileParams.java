@@ -9,6 +9,7 @@ import ocpp.cp._2015._10.ChargingSchedule;
 import ocpp.cp._2015._10.ChargingSchedulePeriod;
 import org.joda.time.LocalDateTime;
 
+import javax.validation.constraints.Min;
 import javax.validation.constraints.NotNull;
 import java.math.BigDecimal;
 
@@ -25,6 +26,7 @@ public class SetChargingProfileParams extends MultipleChargePointSelect {
     private ChargingProfile csChargingProfiles;
     @NotNull(message = "Charging Profile ID is required.")
     private Integer chargingProfileId;
+    @Min(value = 1, message = "Transaction ID cannot be set without TxProfile or on multiple Charge Points")
     private Integer transactionId;
     @NotNull(message = "Stack Level is required.")
     private Integer stackLevel;
@@ -59,29 +61,104 @@ public class SetChargingProfileParams extends MultipleChargePointSelect {
             this.connectorId = connectorId;
         }
     }
-    // --------------------------------------------------------------------------------------------------------
-    // Don't go beyond this line as it is dangerous, I'm not a cop, just a comment, but advise you not to do it
-    // --------------------------------------------------------------------------------------------------------
-    // I give up, let me just set something up so I won't forget this.
-    // TODO fix this TxProfile and Transaction ID problem because nothing works and not nothing as in no handling.
-    // This definitely won't make me forget.
+    // ---------------------------------------------------------------------------------------------------
+    // Don't go beyond this line as it is dangerous, I'm not a cop, just a comment, but advise you not to.
+    // ---------------------------------------------------------------------------------------------------
+    // Code Graveyard...
 
-    public void setTransactionId (Integer transactionId) {
-        if (transactionId != null && getChargePointSelectList().toArray().length > 1 ||
+    public void setTransactionId(Integer transactionId) {
+        if (getChargePointSelectList().toArray().length > 1 && chargingProfilePurpose.value().equals(ChargingProfilePurposeType.TX_PROFILE.value())) {
+            this.chargingProfilePurpose = null;
+        } else if (getChargePointSelectList().toArray().length == 1) {
+            if (transactionId == null && getChargingProfilePurpose().value().equals(ChargingProfilePurposeType.TX_PROFILE.value())) {
+                this.chargingProfilePurpose = null;
+            } else if (transactionId != null && !getChargingProfilePurpose().value().equals(ChargingProfilePurposeType.TX_PROFILE.value())) {
+                this.transactionId = -1;
+            } else {
+                this.transactionId = transactionId;
+            }
+            return;
+        } else {
+            this.transactionId = transactionId != null ? -1 : transactionId;
+        }
+    }
+
+    /*public Integer setTransactionId(Integer transactionId) {
+        if (getChargePointSelectList().toArray().length > 1 && transactionId != null) {
+            return this.transactionId = -1;
+        } else if (transactionId != null && !chargingProfilePurpose.value().equals(ChargingProfilePurposeType.TX_PROFILE.value())) {
+            return this.transactionId = null;
+        } else {
+            return this.transactionId = transactionId;
+        }
+    }
+
+    public ChargingProfilePurposeTypeEnum setChargingProfilePurpose (ChargingProfilePurposeTypeEnum chargingProfilePurpose) {
+        if (getChargePointSelectList().toArray().length > 1 && chargingProfilePurpose.value().equals(ChargingProfilePurposeType.TX_PROFILE.value())) {
+            return this.chargingProfilePurpose = null;
+        } else if (getChargePointSelectList().toArray().length == 1) {
+            if (transactionId == null && chargingProfilePurpose.value().equals(ChargingProfilePurposeType.TX_PROFILE.value())) {
+                return this.chargingProfilePurpose = null;
+            } else {
+                return this.chargingProfilePurpose = chargingProfilePurpose;
+            }
+        } else {
+            return this.chargingProfilePurpose = chargingProfilePurpose;
+        }
+    }*/
+
+    /*public Integer setTransactionId (Integer transactionId) {
+        return this.transactionId = transactionId;
+    }
+
+    /*public void setChargingProfilePurpose(ChargingProfilePurposeTypeEnum chargingProfilePurpose) {
+        System.out.println(chargingProfilePurpose);
+        this.chargingProfilePurpose = chargingProfilePurpose;
+    }*/
+
+    //public void setTransactionId (Integer transactionId) {
+        /*if (transactionId != null && getChargePointSelectList().toArray().length > 1 ||
                 !chargingProfilePurpose.value().equals(ChargingProfilePurposeType.TX_PROFILE.value()) && transactionId != null) {
             this.transactionId = null;
         } else {
             this.transactionId = transactionId;
+        }*/
+    //}
+    /*public ChargingProfilePurposeTypeEnum setTransactionId(Integer transactionId) {
+        System.out.println("CheckTestHelpMe list: " + getChargePointSelectList().toArray().length);
+        System.out.println("CheckTestHelpMe chargingProfilePurpose: " + chargingProfilePurpose.value());
+        System.out.println("CheckTestHelpMe transactionId: " + transactionId);
+        System.out.println(" ");
+        if (getChargePointSelectList().toArray().length > 1) {
+            if (transactionId != null || chargingProfilePurpose.value().equals(ChargingProfilePurposeType.TX_PROFILE.value())) {
+                this.transactionId = transactionId;
+                return this.chargingProfilePurpose = null;
+            }
+        } else if (getChargePointSelectList().toArray().length < 2) {
+            if (chargingProfilePurpose.value().equals(ChargingProfilePurposeType.TX_PROFILE.value()) && transactionId == null) {
+                this.transactionId = transactionId;
+                return this.chargingProfilePurpose = null;
+            } else if (!chargingProfilePurpose.value().equals(ChargingProfilePurposeType.TX_PROFILE.value()) && transactionId != null) {
+                this.transactionId = transactionId;
+                return this.chargingProfilePurpose = null;
+            }
         }
-    }
+        this.transactionId = transactionId;
+        return chargingProfilePurpose;
+    }*/
 
-    public void setChargingProfilePurpose(ChargingProfilePurposeTypeEnum chargingProfilePurpose) {
+    /*public void setChargingProfilePurpose(ChargingProfilePurposeTypeEnum chargingProfilePurpose) {
+        System.out.println(transactionId);
         if  (chargingProfilePurpose.value().equals(ChargingProfilePurposeType.TX_PROFILE.value()) && getChargePointSelectList().toArray().length > 1 ||
-                chargingProfilePurpose.value().equals(ChargingProfilePurposeType.TX_PROFILE.value()) && transactionId == null) {
+                transactionId != null && getChargePointSelectList().toArray().length > 1 ||
+                chargingProfilePurpose.value().equals(ChargingProfilePurposeType.TX_PROFILE.value()) && transactionId == null ||
+                !chargingProfilePurpose.value().equals(ChargingProfilePurposeType.TX_PROFILE.value()) && transactionId != null) {
             this.chargingProfilePurpose = null;
         } else {
             this.chargingProfilePurpose = chargingProfilePurpose;
         }
-    }
-    // --------------------------------------------------------------------------------------------------------
+    }*/
+
+
+    // ---------------------------------------------------------------------------------------------------
 }

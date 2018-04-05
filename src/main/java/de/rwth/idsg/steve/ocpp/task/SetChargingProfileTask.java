@@ -74,6 +74,7 @@ public class SetChargingProfileTask extends CommunicationTask<SetChargingProfile
                                 .withChargingRateUnit(ChargingRateUnitType.W)
                                 .withChargingSchedulePeriod(cspList)));*/
         System.out.println(params.getTransactionId() + " " + params.getChargingProfilePurpose());
+
         ChargingSchedulePeriod chargingSchedulePeriod = new ChargingSchedulePeriod()
                 .withStartPeriod(params.getStartPeriod())
                 .withLimit(params.getLimit().setScale(1, RoundingMode.HALF_UP))
