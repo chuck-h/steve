@@ -1,6 +1,5 @@
 package de.rwth.idsg.steve.web.dto.ocpp;
 
-import com.sun.org.apache.bcel.internal.generic.IF_ACMPEQ;
 import lombok.Getter;
 import lombok.Setter;
 import ocpp.cp._2015._10.ChargingProfile;
@@ -8,7 +7,6 @@ import ocpp.cp._2015._10.ChargingProfilePurposeType;
 import ocpp.cp._2015._10.ChargingSchedule;
 import ocpp.cp._2015._10.ChargingSchedulePeriod;
 import org.joda.time.LocalDateTime;
-import org.springframework.security.access.method.P;
 
 import javax.validation.constraints.Min;
 import javax.validation.constraints.NotNull;
@@ -62,12 +60,13 @@ public class SetChargingProfileParams extends MultipleChargePointSelect {
             this.connectorId = connectorId;
         }
     }
-    // ---------------------------------------------------------------------------------------------------
-    // Don't go beyond this line as it is dangerous, I'm not a cop, just a comment, but advise you not to.
-    // ---------------------------------------------------------------------------------------------------
-
+    // -----------------------------------------------------------------------------------------------------
+    // Selecting 1 Charge Point and then clicking "Select All" with TxProfile will show the following error
+    // "Property 'transactionId' threw exception; nested exception is java.lang.NullPointerException"
+    // This isn't a problem because this is preventing users to set TxProfile/TransactionID on multiple CP's
+    // It happens somewhere in this area.
+    // -----------------------------------------------------------------------------------------------------
     public void setTransactionId(Integer transactionId) {
-        this.transactionId = transactionId;
         if (getChargePointSelectList().toArray().length > 1 && transactionId != null) {
             this.transactionId = -1;
         } else if (transactionId != null && !chargingProfilePurpose.value().equals(ChargingProfilePurposeType.TX_PROFILE.value())) {
@@ -80,11 +79,11 @@ public class SetChargingProfileParams extends MultipleChargePointSelect {
     }
 
     public void setChargingProfilePurpose(ChargingProfilePurposeTypeEnum chargingProfilePurpose) {
-        this.chargingProfilePurpose = chargingProfilePurpose;
         if (getChargePointSelectList().toArray().length > 1 && chargingProfilePurpose.value().equals(ChargingProfilePurposeType.TX_PROFILE.value())) {
             this.chargingProfilePurpose = null;
+        } else {
+            this.chargingProfilePurpose = chargingProfilePurpose;
         }
     }
-
-    // ---------------------------------------------------------------------------------------------------
+    // -----------------------------------------------------------------------------------------------------
 }
