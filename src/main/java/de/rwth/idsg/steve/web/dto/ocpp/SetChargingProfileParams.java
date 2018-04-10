@@ -1,6 +1,7 @@
 package de.rwth.idsg.steve.web.dto.ocpp;
 
 import lombok.Getter;
+import lombok.NonNull;
 import lombok.Setter;
 import ocpp.cp._2015._10.ChargingProfile;
 import ocpp.cp._2015._10.ChargingProfilePurposeType;
@@ -11,6 +12,8 @@ import org.joda.time.LocalDateTime;
 import javax.validation.constraints.Min;
 import javax.validation.constraints.NotNull;
 import java.math.BigDecimal;
+import java.math.RoundingMode;
+import java.util.List;
 
 /**
  * @author David Rerimassie <david@rerimassie.nl>
@@ -25,7 +28,8 @@ public class SetChargingProfileParams extends MultipleChargePointSelect {
     private ChargingProfile csChargingProfiles;
     @NotNull(message = "Charging Profile ID is required.")
     private Integer chargingProfileId;
-    @Min(value = 1, message = "Transaction ID cannot be set without TxProfile or on multiple Charge Points")
+    @Min(value = 1, message = "Transaction ID cannot be set without TxProfile or on multiple Charge Points and </br> " +
+                "Charging Profile Purpose cannot be 'TxProfile' outside transaction and can only be set at 1 Charge Point")
     private Integer transactionId;
     @NotNull(message = "Stack Level is required.")
     private Integer stackLevel;
@@ -46,12 +50,11 @@ public class SetChargingProfileParams extends MultipleChargePointSelect {
     private ChargingRateUnitTypeEnum chargingRateUnit;
     private BigDecimal minChargingRate;
 
-    private ChargingSchedulePeriod chargingSchedulePeriod;
-    @NotNull(message = "Start Period required.")
-    private Integer startPeriod;
-    @NotNull(message = "Limit required.")
-    private BigDecimal limit;
-    private Integer numberPhases;
+    private List<ChargingSchedulePeriod> chargingSchedulePeriod;
+
+    private Integer[] startPeriod;
+    private BigDecimal[] limit;
+    private Integer[] numberPhases;
 
     public void setConnectorId(Integer connectorId) {
         if (connectorId == null) {
@@ -60,6 +63,28 @@ public class SetChargingProfileParams extends MultipleChargePointSelect {
             this.connectorId = connectorId;
         }
     }
+
+    public void setStartPeriod(Integer[] startPeriod) {
+        for (Integer i : startPeriod) {
+            System.out.println("startPeriod: " + i);
+        }
+        System.out.println("startPeriod Size: " + startPeriod.length);
+    }
+
+    public void setLimit(BigDecimal[] limit) {
+        for (BigDecimal i : limit) {
+            System.out.println("limit: " + i);
+        }
+        System.out.println("limit Size: " + limit.length);
+    }
+
+    public void setNumberPhases(Integer[] numberPhases){
+        for (Integer i : numberPhases) {
+            System.out.println("numberPhases: " + i);
+        }
+        System.out.println("numberPhases Size: " + numberPhases.length);
+    }
+
     // -----------------------------------------------------------------------------------------------------
     // Selecting 1 Charge Point and then clicking "Select All" with TxProfile will show the following error
     // "Property 'transactionId' threw exception; nested exception is java.lang.NullPointerException"

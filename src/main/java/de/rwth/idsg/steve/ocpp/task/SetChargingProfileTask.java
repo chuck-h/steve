@@ -74,10 +74,28 @@ public class SetChargingProfileTask extends CommunicationTask<SetChargingProfile
                                 .withChargingRateUnit(ChargingRateUnitType.W)
                                 .withChargingSchedulePeriod(cspList)));*/
 
+        /*List<ChargingSchedulePeriod> chargingSchedulePeriod2 = new ArrayList<>();
+        Integer[] sp = params.getStartPeriod();
+        BigDecimal[] l = params.getLimit();
+        Integer[] np = params.getNumberPhases();
+
+        for (Integer sp2 : sp) {
+            for (BigDecimal l2 : l) {
+                for (Integer np2 : np) {
+                    chargingSchedulePeriod2.add(new ChargingSchedulePeriod()
+                            .withStartPeriod(sp2)
+                            .withLimit(l2.setScale(1, RoundingMode.HALF_UP))
+                            .withNumberPhases(np2));
+                }
+                System.out.println(chargingSchedulePeriod2.size());
+            }
+            System.out.println(chargingSchedulePeriod2.size());
+        }*/
+
         ChargingSchedulePeriod chargingSchedulePeriod = new ChargingSchedulePeriod()
-                .withStartPeriod(params.getStartPeriod())
-                .withLimit(params.getLimit().setScale(1, RoundingMode.HALF_UP))
-                .withNumberPhases(params.getNumberPhases());
+                .withStartPeriod(params.getStartPeriod()[0])
+                .withLimit(params.getLimit()[0].setScale(1, RoundingMode.HALF_UP))
+                .withNumberPhases(params.getNumberPhases()[0]);
 
         ChargingSchedule chargingSchedule = new ChargingSchedule()
                 .withDuration(params.getDuration())

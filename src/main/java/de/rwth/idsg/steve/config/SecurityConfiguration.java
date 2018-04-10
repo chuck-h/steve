@@ -40,6 +40,7 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
                 .withUser(CONFIG.getAuth().getUserName())
                 .password(CONFIG.getAuth().getPassword())
                 .roles("ADMIN");
+
     }
 
     @Override

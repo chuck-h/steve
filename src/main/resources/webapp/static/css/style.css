@@ -443,3 +443,33 @@ input, select, textarea {
 	-moz-box-sizing: border-box;
 	box-sizing: border-box;
 }
+
+
+
+
+table, tr, td, th {
+	border-collapse:collapse;
+}
+
+tr.header {
+	cursor:pointer;
+}
+
+.header .sign:after {
+	content:"-";
+	display:inline-block;      
+}
+
+.header.expand .sign:after {
+	content:"+";
+}
+
+.noselect {
+	-webkit-touch-callout: none; /* iOS Safari */
+		-webkit-user-select: none; /* Safari */
+			-khtml-user-select: none; /* Konqueror HTML */
+				-moz-user-select: none; /* Firefox */
+					-ms-user-select: none; /* Internet Explorer/Edge */
+						user-select: none; /* Non-prefixed version, currently
+												supported by Chrome and Opera*/
+}
