@@ -11,6 +11,7 @@ import javax.xml.ws.AsyncHandler;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.util.*;
+import java.util.stream.Stream;
 
 import static de.rwth.idsg.steve.utils.DateTimeUtils.toDateTime;
 
@@ -45,63 +46,20 @@ public class SetChargingProfileTask extends CommunicationTask<SetChargingProfile
     @Deprecated
     @Override
     public ocpp.cp._2015._10.SetChargingProfileRequest  getOcpp16Request() {
-        //Example from OCPP 1.6 specifications for quick testing
-        /*ChargingSchedulePeriod[] cspList = new ChargingSchedulePeriod[] {
-                    new ChargingSchedulePeriod()
-                            .withStartPeriod(0) // = 00:00
-                            .withLimit(new BigDecimal(11000).setScale(1, RoundingMode.HALF_UP))
-                            .withNumberPhases(3),
-                    new ChargingSchedulePeriod()
-                            .withStartPeriod(28800) // = 08:00
-                            .withLimit(new BigDecimal(6000).setScale(1, RoundingMode.HALF_UP))
-                            .withNumberPhases(3),
-                    new ChargingSchedulePeriod()
-                            .withStartPeriod(72000) // = 20:00
-                            .withLimit(new BigDecimal(11000).setScale(1, RoundingMode.HALF_UP))
-                            .withNumberPhases(3)
-                };
-        return new ocpp.cp._2015._10.SetChargingProfileRequest()
-                .withConnectorId(2)
-                .withCsChargingProfiles(new ChargingProfile()
-                        .withChargingProfileId(100)
-                        .withStackLevel(0)
-                        .withChargingProfilePurpose(ChargingProfilePurposeType.TX_DEFAULT_PROFILE)
-                        .withChargingProfileKind(ChargingProfileKindType.RECURRING)
-                        .withRecurrencyKind(RecurrencyKindType.DAILY)
-                        .withChargingSchedule(new ChargingSchedule()
-                                .withDuration(86400) //24 hours
-                                .withStartSchedule(new DateTime(toDateTime(LocalDateTime.now())))
-                                .withChargingRateUnit(ChargingRateUnitType.W)
-                                .withChargingSchedulePeriod(cspList)));*/
+        List<ChargingSchedulePeriod> cspList = new ArrayList<>();
 
-        /*List<ChargingSchedulePeriod> chargingSchedulePeriod2 = new ArrayList<>();
-        Integer[] sp = params.getStartPeriod();
-        BigDecimal[] l = params.getLimit();
-        Integer[] np = params.getNumberPhases();
-
-        for (Integer sp2 : sp) {
-            for (BigDecimal l2 : l) {
-                for (Integer np2 : np) {
-                    chargingSchedulePeriod2.add(new ChargingSchedulePeriod()
-                            .withStartPeriod(sp2)
-                            .withLimit(l2.setScale(1, RoundingMode.HALF_UP))
-                            .withNumberPhases(np2));
-                }
-                System.out.println(chargingSchedulePeriod2.size());
-            }
-            System.out.println(chargingSchedulePeriod2.size());
-        }*/
-
-        ChargingSchedulePeriod chargingSchedulePeriod = new ChargingSchedulePeriod()
-                .withStartPeriod(params.getStartPeriod()[0])
-                .withLimit(params.getLimit()[0].setScale(1, RoundingMode.HALF_UP))
-                .withNumberPhases(params.getNumberPhases()[0]);
+        for (int i = 0; i < params.getStartPeriod().length; i++) {
+            cspList.add(new ChargingSchedulePeriod()
+                            .withStartPeriod(params.getStartPeriod()[i])
+                            .withLimit(params.getLimit()[i].setScale(1, RoundingMode.HALF_UP))
+                            .withNumberPhases(params.getNumberPhases().get(i)));
+        }
 
         ChargingSchedule chargingSchedule = new ChargingSchedule()
                 .withDuration(params.getDuration())
                 .withStartSchedule(toDateTime(params.getStartSchedule()))
                 .withChargingRateUnit(ChargingRateUnitType.fromValue(params.getChargingRateUnit().value()))
-                .withChargingSchedulePeriod(chargingSchedulePeriod)
+                .withChargingSchedulePeriod(cspList)
                 .withMinChargingRate(params.getMinChargingRate() != null ? params.getMinChargingRate().setScale(1, RoundingMode.HALF_UP) : null);
 
         ChargingProfile csChargingProfiles = new ChargingProfile()

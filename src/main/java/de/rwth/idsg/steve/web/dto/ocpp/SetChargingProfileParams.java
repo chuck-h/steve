@@ -52,9 +52,11 @@ public class SetChargingProfileParams extends MultipleChargePointSelect {
 
     private List<ChargingSchedulePeriod> chargingSchedulePeriod;
 
+    @NotNull(message = "Charging Schedule Period parameters need an equivalent amount of values and </br>" +
+            "Start Periods cannot be lower or equal to the one before, max startPeriod value = 86399 (23:59:59)")
     private Integer[] startPeriod;
     private BigDecimal[] limit;
-    private Integer[] numberPhases;
+    private List<Integer> numberPhases;
 
     public void setConnectorId(Integer connectorId) {
         if (connectorId == null) {
@@ -65,32 +67,37 @@ public class SetChargingProfileParams extends MultipleChargePointSelect {
     }
 
     public void setStartPeriod(Integer[] startPeriod) {
-        for (Integer i : startPeriod) {
-            System.out.println("startPeriod: " + i);
+        startPeriod[0] = 0;
+        Integer last = -1;
+        for (Integer current : startPeriod) {
+            if (startPeriod != null) {
+                if (last >= current || current >= 86400) {
+                    startPeriod = null;
+                }
+                last = current;
+            }
         }
-        System.out.println("startPeriod Size: " + startPeriod.length);
+        if (startPeriod == null) {
+            this.startPeriod = startPeriod;
+        } else if ((numberPhases == null || numberPhases.size() == 0) && (startPeriod.length == limit.length)) {
+            for (int i = 0; i < startPeriod.length; i++) {
+                numberPhases.add(3);
+            }
+            this.startPeriod = startPeriod;
+        } else if ((numberPhases != null || numberPhases.size() != 0) && (startPeriod.length == limit.length) && (startPeriod.length == numberPhases.size())) {
+            this.startPeriod = startPeriod;
+        } else {
+            this.startPeriod = null;
+        }
     }
 
-    public void setLimit(BigDecimal[] limit) {
-        for (BigDecimal i : limit) {
-            System.out.println("limit: " + i);
-        }
-        System.out.println("limit Size: " + limit.length);
-    }
 
-    public void setNumberPhases(Integer[] numberPhases){
-        for (Integer i : numberPhases) {
-            System.out.println("numberPhases: " + i);
-        }
-        System.out.println("numberPhases Size: " + numberPhases.length);
-    }
-
-    // -----------------------------------------------------------------------------------------------------
-    // Selecting 1 Charge Point and then clicking "Select All" with TxProfile will show the following error
-    // "Property 'transactionId' threw exception; nested exception is java.lang.NullPointerException"
-    // This isn't a problem because this is preventing users to set TxProfile/TransactionID on multiple CP's
-    // It happens somewhere in this area.
-    // -----------------------------------------------------------------------------------------------------
+    // ------------------------------------------------------------------------------------------------------------
+    // Selecting 1 Charge Point and then clicking "Select All" with TxProfile will show one of the following errors
+    // - "Property 'transactionId' threw exception; nested exception is java.lang.NullPointerException"
+    // - "Property 'chargingProfilePurpose' threw exception; nested exception is java.lang.NullPointerException"
+    // This isn't a problem because this is preventing users to set TxProfile/transactionId on multiple CP's
+    // ------------------------------------------------------------------------------------------------------------
     public void setTransactionId(Integer transactionId) {
         if (getChargePointSelectList().toArray().length > 1 && transactionId != null) {
             this.transactionId = -1;
@@ -110,5 +117,5 @@ public class SetChargingProfileParams extends MultipleChargePointSelect {
             this.chargingProfilePurpose = chargingProfilePurpose;
         }
     }
-    // -----------------------------------------------------------------------------------------------------
+    // ------------------------------------------------------------------------------------------------------------
 }
