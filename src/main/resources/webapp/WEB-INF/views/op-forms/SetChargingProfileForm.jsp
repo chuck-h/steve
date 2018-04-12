@@ -74,7 +74,7 @@
 			<tr data-for="csp" style="display:none"><td>Number of Phases (integer) :</td><td><form:input path="numberPhases" placeholder="optional, if empty, 3 will be assumed" /></td></tr>
 
 		<tr>
-			<td></td><td><div class="submit-button"><input type="submit" value="Perform"></div></td>
+			<td></td><td><div class="submit-button"><input type="submit" disabled="true" value="Perform"></div></td>
 		</tr>
 	</table>
 	<script>
