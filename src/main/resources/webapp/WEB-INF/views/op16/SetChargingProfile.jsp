@@ -3,6 +3,7 @@
 <script type="text/javascript">
     $(document).ready(function() {
         <%@ include file="../snippets/getTransactionIdsSetChargeProfile.js" %>
+        <%@ include file="../snippets/dateTimePicker.js" %>
     });
 </script>
 <div class="content">

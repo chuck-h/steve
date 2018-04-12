@@ -1,5 +1,5 @@
-<form:form action="${ctxPath}/manager/operations/v1.6/SetChargingProfile" modelAttribute="params">
-	<section><span>Charge Points with OCPP v1.6</span></section>
+<form:form action="${ctxPath}/manager/operations/${opVersion}/SetChargingProfile" modelAttribute="params">
+	<section><span>Charge Points with OCPP ${opVersion}</span></section>
 	<%@ include file="../00-cp-multiple.jsp" %>
 	<section><span>Parameters</span></section>
 	<table class="userInput" border="0">
