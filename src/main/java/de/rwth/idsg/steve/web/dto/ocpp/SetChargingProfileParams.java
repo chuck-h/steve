@@ -97,20 +97,13 @@ public class SetChargingProfileParams extends MultipleChargePointSelect {
         }
     }
 
-
-    // ------------------------------------------------------------------------------------------------------------
-    // Selecting 1 Charge Point and then clicking "Select All" with TxProfile will show one of the following errors
-    // - "Property 'transactionId' threw exception; nested exception is java.lang.NullPointerException"
-    // - "Property 'chargingProfilePurpose' threw exception; nested exception is java.lang.NullPointerException"
-    // This isn't a problem because this is preventing users to set TxProfile/transactionId on multiple CP's
-    // ------------------------------------------------------------------------------------------------------------
     public void setTransactionId(Integer transactionId) {
         if (getChargePointSelectList().toArray().length > 1 && transactionId != null) {
             this.transactionId = -1;
         } else if (transactionId != null && !chargingProfilePurpose.value().equals(ChargingProfilePurposeType.TX_PROFILE.value())) {
             this.transactionId = -1;
         } else if (transactionId == null && chargingProfilePurpose.value().equals(ChargingProfilePurposeType.TX_PROFILE.value())) {
-            this.chargingProfilePurpose = null;
+            this.transactionId = -1;
         } else {
             this.transactionId = transactionId;
         }
@@ -123,5 +116,4 @@ public class SetChargingProfileParams extends MultipleChargePointSelect {
             this.chargingProfilePurpose = chargingProfilePurpose;
         }
     }
-    // ------------------------------------------------------------------------------------------------------------
 }
