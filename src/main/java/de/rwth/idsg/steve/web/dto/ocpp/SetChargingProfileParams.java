@@ -9,6 +9,7 @@ import ocpp.cp._2015._10.ChargingSchedule;
 import ocpp.cp._2015._10.ChargingSchedulePeriod;
 import org.joda.time.LocalDateTime;
 
+import javax.validation.constraints.Max;
 import javax.validation.constraints.Min;
 import javax.validation.constraints.NotNull;
 import java.math.BigDecimal;
@@ -71,21 +72,26 @@ public class SetChargingProfileParams extends MultipleChargePointSelect {
         Integer last = -1;
         for (Integer current : startPeriod) {
             if (startPeriod != null) {
-                if (last >= current || current >= 86400) {
-                    startPeriod = null;
+                if (last >= current) {
+                    this.startPeriod = startPeriod = null;
                 }
-                last = current;
             }
+            if (current > 86399) {
+                this.startPeriod = startPeriod = null;
+            }
+            last = current;
         }
-        if (startPeriod == null) {
-            this.startPeriod = startPeriod;
-        } else if ((numberPhases == null || numberPhases.size() == 0) && (startPeriod.length == limit.length)) {
-            for (int i = 0; i < startPeriod.length; i++) {
-                numberPhases.add(3);
+        if (startPeriod != null) {
+            if ((numberPhases == null || numberPhases.size() == 0) && (startPeriod.length == limit.length)) {
+                for (int i = 0; i < startPeriod.length; i++) {
+                    numberPhases.add(3);
+                }
+                this.startPeriod = startPeriod;
+            } else if ((numberPhases != null || numberPhases.size() != 0) && (startPeriod.length == limit.length) && (startPeriod.length == numberPhases.size())) {
+                this.startPeriod = startPeriod;
+            } else {
+                this.startPeriod = null;
             }
-            this.startPeriod = startPeriod;
-        } else if ((numberPhases != null || numberPhases.size() != 0) && (startPeriod.length == limit.length) && (startPeriod.length == numberPhases.size())) {
-            this.startPeriod = startPeriod;
         } else {
             this.startPeriod = null;
         }
