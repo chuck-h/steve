@@ -1,7 +1,6 @@
 package de.rwth.idsg.steve.web.dto.ocpp;
 
 import lombok.Getter;
-import lombok.NonNull;
 import lombok.Setter;
 import ocpp.cp._2015._10.ChargingProfile;
 import ocpp.cp._2015._10.ChargingProfilePurposeType;
@@ -9,11 +8,9 @@ import ocpp.cp._2015._10.ChargingSchedule;
 import ocpp.cp._2015._10.ChargingSchedulePeriod;
 import org.joda.time.LocalDateTime;
 
-import javax.validation.constraints.Max;
 import javax.validation.constraints.Min;
 import javax.validation.constraints.NotNull;
 import java.math.BigDecimal;
-import java.math.RoundingMode;
 import java.util.List;
 
 /**
