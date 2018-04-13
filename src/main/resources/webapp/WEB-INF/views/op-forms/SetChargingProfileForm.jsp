@@ -3,6 +3,7 @@
 	<%@ include file="../00-cp-multiple.jsp" %>
 	<section><span>Parameters</span></section>
 	<table class="userInput" border="0">
+	<div class="info"><b>Info:</b> Multiple Charging Schedule Periods can be set by separating the values with a ","</div>
 		<tr><td>Connector ID :</td>
 			<td><form:input path="connectorId" placeholder="if empty, charge point(s) as a whole" /></td>
 		</tr>
@@ -66,7 +67,7 @@
 		<tr data-for="cs" style="display:none"><td>Minimum Charging Rate (decimal) :</td><td><form:input path="minChargingRate" placeholder="optional" /></td></tr>
 		
 		<tr class="header expand" id="csp"><td class="noselect"><b>Charging Schedule Period <span class="sign" /></b></td></tr>
-		
+
 			<tr data-for="csp" style="display:none"><td>Start Period (integer) :</td><td><form:input path="startPeriod" placeholder="First Start Period SHALL always be 0" /></td></tr>
 
 			<tr data-for="csp" style="display:none"><td>Limit (decimal, multiple of 0.1) :</td><td><form:input path="limit" /></td></tr>
