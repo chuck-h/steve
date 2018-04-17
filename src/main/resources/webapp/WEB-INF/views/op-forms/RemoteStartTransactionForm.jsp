@@ -18,9 +18,9 @@
 			</td>
 		</tr>
 		<tr id="ChargingProfile" class="header expand" style="display:none;" >
-			<td class="noselect"><b>Charging Profile (optional) <span class="sign" /></b></td>
-			<td>
-				<form:checkbox path="useChargingProfile" />
+			<td id="chargp" class="noselect"><b>Charging Profile (optional) <span class="sign" /></b></td>
+			<td id="chargp2">
+				<form:checkbox id="checkb" path="useChargingProfile" onclick="this.checked=!this.checked;" />
 			</td>
 		</tr>
 		<tr data-for="ChargingProfile" style="display:none">
@@ -141,8 +141,20 @@
 			$(this).toggleClass('expand').nextUntil('tr.header');
 			$("[data-for="+this.id+"]").slideToggle(10);  
 		});
-	</script>
-	<script>
+		
+		$('#chargp, #chargp2').click(function () {
+			check();
+		});
+		
+		function check() {
+			var inputs = document.getElementById("checkb");
+			if (inputs.checked == false) {
+				inputs.checked = true;
+			} else if (inputs.checked == true) {
+				inputs.checked = false; 
+			}
+		}
+		
 		var show = document.getElementById("ChargingProfile");
 		var version = '${opVersion}';
 		if (version == 'v1.6') {

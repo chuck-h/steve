@@ -13,6 +13,7 @@ import java.util.List;
 
 /**
  * @author Sevket Goekay <goekay@dbis.rwth-aachen.de>
+ * @author David Rerimassie <david@rerimassie.nl></david@rerimassie.nl>
  * @since 01.01.2015
  */
 @Setter

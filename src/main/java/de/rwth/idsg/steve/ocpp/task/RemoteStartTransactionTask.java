@@ -15,6 +15,7 @@ import static de.rwth.idsg.steve.utils.DateTimeUtils.toDateTime;
 
 /**
  * @author Sevket Goekay <goekay@dbis.rwth-aachen.de>
+ * @author David Rerimassie <david@rerimassie.nl>
  * @since 09.03.2018
  */
 public class RemoteStartTransactionTask extends CommunicationTask<RemoteStartTransactionParams, String> {
