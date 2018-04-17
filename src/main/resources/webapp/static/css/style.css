@@ -444,9 +444,7 @@ input, select, textarea {
 	box-sizing: border-box;
 }
 
-
-
-
+/*************** Set Charging Profile table ***************/
 table, tr, td, th {
 	border-collapse:collapse;
 }
