@@ -24,7 +24,7 @@
 			</td>
 		</tr>
 		<tr data-for="ChargingProfile" style="display:none">
-			<td colspan="2"><i><b>Info:</b> Multiple Charging Schedule Periods can be set by separating the values with a ","</i></td>
+			<td colspan="2" class="noselect"><i><b>Info:</b> Multiple Charging Schedule Periods can be set by separating the values with a ","</i></td>
 		</tr>
 		<tr data-for="ChargingProfile" style="display:none" class="header expand" id="cp">
 			<td class="noselect"><b>Charging Profile <span class="sign" /></b></td>
@@ -129,6 +129,7 @@
 				<form:input path="numberPhases" placeholder="optional, if empty, 3 will be assumed" />
 			</td>
 		</tr>
+		<tr><td id="testt"></td></tr>
 		<tr>
 			<td></td>
 			<td>
@@ -137,9 +138,28 @@
 		</tr>
 	</table>
 	<script>
+		var cp = true; //true = "+", false = "-"
+		var cs = true; //true = "+", false = "-"
+		var csp = true; //true = "+", false = "-"
+		 
 		$(".header").click(function () {
 			$(this).toggleClass('expand').nextUntil('tr.header');
-			$("[data-for="+this.id+"]").slideToggle(10);  
+			$("[data-for="+this.id+"]").slideToggle(10);
+			
+			if (this.id == "cp" && cp) {
+				cp = false;
+			} else if (this.id == "cp" && !cp){
+				cp = true;
+			} else if (this.id == "cs" && cs) {
+				cs = false;
+			} else if (this.id == "cs" && !cs) {
+				cs = true;
+			} else if (this.id == "csp" && csp) {
+				csp = false;
+			} else if (this.id == "csp" && !csp) {
+				csp = true;
+			}
+			
 		});
 		
 		$('#chargp, #chargp2').click(function () {
@@ -152,6 +172,22 @@
 				inputs.checked = true;
 			} else if (inputs.checked == true) {
 				inputs.checked = false; 
+				
+				if(!cp) {
+					$("#cp").toggleClass('expand').nextUntil('tr.header');
+					cp = true;
+				} if(!cs) {
+					$("#cs").toggleClass('expand').nextUntil('tr.header');
+					cs = true;
+				} if(!csp) {
+					$("#csp").toggleClass('expand').nextUntil('tr.header');
+					csp = true;
+				}
+				
+				$("[data-for="+document.getElementById("cp").id+"]").slideUp(10);
+				$("[data-for="+document.getElementById("cs").id+"]").slideUp(10);
+				$("[data-for="+document.getElementById("csp").id+"]").slideUp(10);
+				
 			}
 		}
 		

@@ -5,7 +5,7 @@
     <table class="userInput">
         <tr>
             <td>Connector ID (integer):</td>
-            <td><form:input path="connectorId" placeholder="if empty, charge point as a whole" /></td>
+            <td><form:input path="connectorId" placeholder="if empty, charge point(s) as a whole" /></td>
         </tr>
         <tr>
             <td>Duration (integer):</td>
