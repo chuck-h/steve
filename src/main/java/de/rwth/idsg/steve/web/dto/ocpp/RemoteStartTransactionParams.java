@@ -29,13 +29,11 @@ public class RemoteStartTransactionParams extends SingleChargePointSelect {
 
     @NotNull(message = "Charging Schedule Period parameters need an equivalent amount of values and </br>" +
             "Start Periods cannot be lower or equal to the one before, max startPeriod value = 86399 (23:59:59) </br>" +
-            "If setting a Charging Profile in a Remote Transaction make sure to fill in every required field </br>" +
-            "- Charging Profile ID</br>" +
-            "- Stack Level</br>" +
-            "- Charging Profile Kind</br>" +
-            "- Charging Rate Unit</br>" +
-            "- Start Period </br>" +
-            "- Limit")
+            "If setting a Charging Profile in a Remote Start Transaction make sure to fill in every required field: </br>" +
+                "&emsp;- Charging Profile ID</br>" +
+                "&emsp;- Stack Level</br>" +
+                "&emsp;- Start Period </br>" +
+                "&emsp;- Limit")
     public Boolean useChargingProfile;
 
     private Integer chargingProfileId;
