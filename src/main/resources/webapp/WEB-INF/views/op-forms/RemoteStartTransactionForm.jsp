@@ -129,7 +129,6 @@
 				<form:input path="numberPhases" placeholder="optional, if empty, 3 will be assumed" />
 			</td>
 		</tr>
-		<tr><td id="testt"></td></tr>
 		<tr>
 			<td></td>
 			<td>
@@ -146,28 +145,18 @@
 			$(this).toggleClass('expand').nextUntil('tr.header');
 			$("[data-for="+this.id+"]").slideToggle(10);
 			
-			if (this.id == "cp" && cp) {
-				cp = false;
-			} else if (this.id == "cp" && !cp){
-				cp = true;
-			} else if (this.id == "cs" && cs) {
-				cs = false;
-			} else if (this.id == "cs" && !cs) {
-				cs = true;
-			} else if (this.id == "csp" && csp) {
-				csp = false;
-			} else if (this.id == "csp" && !csp) {
-				csp = true;
+			if (this.id == "cp") {
+				cp = cp ? false : true;
+			} if (this.id == "cs") {
+				cs = cs ? false : true;
+			} if (this.id == "csp") {
+				csp = csp ? false : true;
 			}
-			
 		});
 		
 		$('#chargp, #chargp2').click(function () {
-			check();
-		});
-		
-		function check() {
 			var inputs = document.getElementById("checkb");
+			
 			if (inputs.checked == false) {
 				inputs.checked = true;
 			} else if (inputs.checked == true) {
@@ -189,7 +178,7 @@
 				$("[data-for="+document.getElementById("csp").id+"]").slideUp(10);
 				
 			}
-		}
+		});
 		
 		var show = document.getElementById("ChargingProfile");
 		var version = '${opVersion}';
