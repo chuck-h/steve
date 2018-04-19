@@ -68,14 +68,9 @@ public class SetChargingProfileParams extends MultipleChargePointSelect {
     public void setStartPeriod(Integer[] startPeriod) {
         startPeriod[0] = 0;
 
-        this.startPeriod = startPeriod = CspUtils.checkStartPeriod(startPeriod) ? startPeriod : null;
-
-        if (startPeriod != null) {
-            this.startPeriod = (numberPhases = CspUtils.setNumberPhases(startPeriod, limit, numberPhases)).size() ==
-                    startPeriod.length ? startPeriod : null;
-        } else {
-            this.startPeriod = null;
-        }
+        this.startPeriod = CspUtils.checkStartPeriod(startPeriod) ?
+                (numberPhases = CspUtils.setNumberPhases(startPeriod, limit, numberPhases)).size() ==
+                startPeriod.length ? startPeriod : null : null;
     }
 
     public void setTransactionId(Integer transactionId) {

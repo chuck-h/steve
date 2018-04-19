@@ -54,7 +54,7 @@ public final class CspUtils {
                 numberPhases.add(3);
             }
         } else if ((numberPhases.size() == startPeriod.length) && (startPeriod.length == limit.length)) {
-            numberPhases = numberPhases;
+            return numberPhases;
         } else if ((numberPhases.size() < startPeriod.length) && (startPeriod.length == limit.length)) {
             // If numberPhases has less values than startPeriod, fill numberPhases with the default value,
             // "3" as this is the default value according to OCPP 1.6 Specifications

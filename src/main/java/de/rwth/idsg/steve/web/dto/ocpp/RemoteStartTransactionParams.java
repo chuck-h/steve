@@ -75,11 +75,9 @@ public class RemoteStartTransactionParams extends SingleChargePointSelect {
                 this.useChargingProfile = null;
             } else {
                 startPeriod[0] = 0;
-                this.useChargingProfile = useChargingProfile = CspUtils.checkStartPeriod(startPeriod) ? useChargingProfile : null;
-
-                this.useChargingProfile = (numberPhases = CspUtils.setNumberPhases(startPeriod, limit, numberPhases)).size() ==
-                        startPeriod.length ? useChargingProfile : null;
-
+                this.useChargingProfile = CspUtils.checkStartPeriod(startPeriod) ?
+                        (numberPhases = CspUtils.setNumberPhases(startPeriod, limit, numberPhases)).size() ==
+                        startPeriod.length ? useChargingProfile : null : null;
             }
         }
     }
