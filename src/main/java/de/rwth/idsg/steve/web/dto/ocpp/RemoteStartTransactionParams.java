@@ -1,5 +1,6 @@
 package de.rwth.idsg.steve.web.dto.ocpp;
 
+import de.rwth.idsg.steve.utils.CspUtils;
 import de.rwth.idsg.steve.web.validation.IdTag;
 import lombok.Getter;
 import lombok.Setter;
@@ -74,32 +75,11 @@ public class RemoteStartTransactionParams extends SingleChargePointSelect {
                 this.useChargingProfile = null;
             } else {
                 startPeriod[0] = 0;
-                Integer last = -1;
-                for (Integer current : startPeriod) {
-                    if (startPeriod != null) {
-                        if (last >= current) {
-                            this.useChargingProfile = null;
-                        }
-                    }
-                    if (current > 86399) {
-                        this.useChargingProfile = null;
-                    }
-                    last = current;
-                }
-                if (startPeriod != null) {
-                    if ((numberPhases == null || numberPhases.size() == 0) && (startPeriod.length == limit.length)) {
-                        for (int i = 0; i < startPeriod.length; i++) {
-                            numberPhases.add(3);
-                        }
-                        this.useChargingProfile = useChargingProfile;
-                    } else if ((numberPhases != null || numberPhases.size() != 0) && (startPeriod.length == limit.length) && (startPeriod.length == numberPhases.size())) {
-                        this.useChargingProfile = useChargingProfile;
-                    } else {
-                        this.useChargingProfile = null;
-                    }
-                } else {
-                    this.useChargingProfile = null;
-                }
+                this.useChargingProfile = useChargingProfile = CspUtils.checkStartPeriod(startPeriod) ? useChargingProfile : null;
+
+                this.useChargingProfile = (numberPhases = CspUtils.setNumberPhases(startPeriod, limit, numberPhases)).size() ==
+                        startPeriod.length ? useChargingProfile : null;
+
             }
         }
     }

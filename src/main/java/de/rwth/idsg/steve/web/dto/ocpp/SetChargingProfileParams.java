@@ -1,5 +1,6 @@
 package de.rwth.idsg.steve.web.dto.ocpp;
 
+import de.rwth.idsg.steve.utils.CspUtils;
 import lombok.Getter;
 import lombok.Setter;
 import ocpp.cp._2015._10.ChargingProfile;
@@ -66,29 +67,12 @@ public class SetChargingProfileParams extends MultipleChargePointSelect {
 
     public void setStartPeriod(Integer[] startPeriod) {
         startPeriod[0] = 0;
-        Integer last = -1;
-        for (Integer current : startPeriod) {
-            if (startPeriod != null) {
-                if (last >= current) {
-                    this.startPeriod = startPeriod = null;
-                }
-            }
-            if (current > 86399) {
-                this.startPeriod = startPeriod = null;
-            }
-            last = current;
-        }
+
+        this.startPeriod = startPeriod = CspUtils.checkStartPeriod(startPeriod) ? startPeriod : null;
+
         if (startPeriod != null) {
-            if ((numberPhases == null || numberPhases.size() == 0) && (startPeriod.length == limit.length)) {
-                for (int i = 0; i < startPeriod.length; i++) {
-                    numberPhases.add(3);
-                }
-                this.startPeriod = startPeriod;
-            } else if ((numberPhases != null || numberPhases.size() != 0) && (startPeriod.length == limit.length) && (startPeriod.length == numberPhases.size())) {
-                this.startPeriod = startPeriod;
-            } else {
-                this.startPeriod = null;
-            }
+            this.startPeriod = (numberPhases = CspUtils.setNumberPhases(startPeriod, limit, numberPhases)).size() ==
+                    startPeriod.length ? startPeriod : null;
         } else {
             this.startPeriod = null;
         }

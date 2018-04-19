@@ -6,9 +6,9 @@ import ocpp.cp._2015._10.*;
 
 import javax.xml.ws.AsyncHandler;
 import java.math.RoundingMode;
-import java.util.*;
 
 import static de.rwth.idsg.steve.utils.DateTimeUtils.toDateTime;
+import static de.rwth.idsg.steve.utils.CspUtils.setCsp;
 
 /**
  * @author Sevket Goekay <goekay@dbis.rwth-aachen.de>
@@ -41,15 +41,6 @@ public class SetChargingProfileTask extends CommunicationTask<SetChargingProfile
     @Deprecated
     @Override
     public ocpp.cp._2015._10.SetChargingProfileRequest  getOcpp16Request() {
-        List<ChargingSchedulePeriod> cspList = new ArrayList<>();
-
-        for (int i = 0; i < params.getStartPeriod().length; i++) {
-            cspList.add(new ChargingSchedulePeriod()
-                    .withStartPeriod(params.getStartPeriod()[i])
-                    .withLimit(params.getLimit()[i].setScale(1, RoundingMode.HALF_UP))
-                    .withNumberPhases(params.getNumberPhases().get(i)));
-        }
-
         return new ocpp.cp._2015._10.SetChargingProfileRequest()
                 .withConnectorId(params.getConnectorId())
                 .withCsChargingProfiles(new ChargingProfile()
@@ -65,9 +56,8 @@ public class SetChargingProfileTask extends CommunicationTask<SetChargingProfile
                                 .withDuration(params.getDuration())
                                 .withStartSchedule(toDateTime(params.getStartSchedule()))
                                 .withChargingRateUnit(ChargingRateUnitType.fromValue(params.getChargingRateUnit().value()))
-                                .withChargingSchedulePeriod(cspList)
-                                .withMinChargingRate(params.getMinChargingRate() != null ? params.getMinChargingRate().setScale(1, RoundingMode.HALF_UP) : null)));
-
+                                .withChargingSchedulePeriod(setCsp(params.getStartPeriod(), params.getLimit(), params.getNumberPhases()))
+                        .withMinChargingRate(params.getMinChargingRate() != null ? params.getMinChargingRate().setScale(1, RoundingMode.HALF_UP) : null)));
     }
 
     @Deprecated
