@@ -60,6 +60,8 @@ public class OperationalTestSoapOCPP16 {
 
     @BeforeClass
     public static void initClass() throws Exception {
+        Assert.assertEquals(ApplicationProfile.TEST, SteveConfiguration.CONFIG.getProfile());
+
         app = new Application();
         app.start();
     }
@@ -81,6 +83,8 @@ public class OperationalTestSoapOCPP16 {
 
     @Test
     public void testUnregisteredCP() {
+        Assert.assertFalse(SteveConfiguration.CONFIG.getOcpp().isAutoRegisterUnknownStations());
+
         CentralSystemService client = getForOcpp16(path);
 
         BootNotificationResponse boot = client.bootNotification(
