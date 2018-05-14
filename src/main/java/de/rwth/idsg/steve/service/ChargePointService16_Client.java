@@ -66,7 +66,7 @@ public class ChargePointService16_Client extends ChargePointService15_Client {
                          .forEach(task.getParams().getChargePointSelectList())
                          .execute(c -> getOcpp16Invoker().getCompositeSchedule(c, task));
 
-        return requestTaskStore.add(task);
+        return taskStore.add(task);
     }
 
     public int clearChargingProfile(ClearChargingProfileParams params) {
@@ -76,7 +76,7 @@ public class ChargePointService16_Client extends ChargePointService15_Client {
                         .forEach(task.getParams().getChargePointSelectList())
                         .execute(c -> getOcpp16Invoker().clearChargingProfile(c, task));
 
-        return requestTaskStore.add(task);
+        return taskStore.add(task);
     }
 
     public int setChargingProfile(SetChargingProfileParams params) {
@@ -86,6 +86,6 @@ public class ChargePointService16_Client extends ChargePointService15_Client {
                         .forEach(task.getParams().getChargePointSelectList())
                         .execute(c -> getOcpp16Invoker().setChargingProfile(c, task));
 
-        return requestTaskStore.add(task);
+        return taskStore.add(task);
     }
 }
