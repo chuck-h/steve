@@ -16,6 +16,27 @@
             <span>Read-only fields are updated by the charge point.</span>
         </a>
     </span></section>
+
+        <table class="userInput">
+            <thead><tr><th>See Operations</th><th></th></thead>
+            <tbody>
+            <tr>
+                <td>Transactions:</td>
+                <td>
+                    <a href="${ctxPath}/manager/transactions/query?chargeBoxId=${chargePointForm.chargeBoxId}&amp;type=ACTIVE">ACTIVE</a>
+                     /
+                    <a href="${ctxPath}/manager/transactions/query?chargeBoxId=${chargePointForm.chargeBoxId}&amp;type=ALL">ALL</a>
+                </td>
+            </tr>
+            <tr>
+                <td>Reservations:</td>
+                <td>
+                    <a href="${ctxPath}/manager/reservations/query?chargeBoxId=${chargePointForm.chargeBoxId}&amp;periodType=ACTIVE">ACTIVE</a>
+                </td>
+            </tr>
+            </tbody>
+        </table>
+
         <form:form action="${ctxPath}/manager/chargepoints/update" modelAttribute="chargePointForm">
 
             <form:hidden path="chargeBoxPk" readonly="true"/>
@@ -37,8 +58,8 @@
                     <tr><td>Charge Point Model:</td><td>${cp.chargeBox.chargePointModel}</td></tr>
                     <tr><td>Charge Point Serial Number:</td><td>${cp.chargeBox.chargePointSerialNumber}</td></tr>
                     <tr><td>Charge Box Serial Number:</td><td>${cp.chargeBox.chargePointSerialNumber}</td></tr>
-                    <tr><td>Firewire Version:</td><td>${cp.chargeBox.fwVersion}</td></tr>
-                    <tr><td>Firewire Update Timestamp:</td><td>${cp.chargeBox.fwUpdateTimestamp}</td></tr>
+                    <tr><td>Firmware Version:</td><td>${cp.chargeBox.fwVersion}</td></tr>
+                    <tr><td>Firmware Update Timestamp:</td><td>${cp.chargeBox.fwUpdateTimestamp}</td></tr>
                     <tr><td>Iccid:</td><td>${cp.chargeBox.iccid}</td></tr>
                     <tr><td>Imsi:</td><td>${cp.chargeBox.imsi}</td></tr>
                     <tr><td>Meter Type:</td><td>${cp.chargeBox.meterType}</td></tr>

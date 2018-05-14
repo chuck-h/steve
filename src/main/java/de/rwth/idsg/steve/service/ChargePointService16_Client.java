@@ -56,7 +56,7 @@ public class ChargePointService16_Client extends ChargePointService15_Client {
                          .forEach(task.getParams().getChargePointSelectList())
                          .execute(c -> getOcpp16Invoker().triggerMessage(c, task));
 
-        return requestTaskStore.add(task);
+        return taskStore.add(task);
     }
 
     public int getCompositeSchedule(GetCompositeScheduleParams params) {

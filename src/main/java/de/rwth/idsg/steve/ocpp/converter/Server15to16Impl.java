@@ -229,10 +229,11 @@ public enum Server15to16Impl implements Server15to16 {
      * but something else might make more sense at this place
      */
     private static ChargePointStatus customMapStatus(ocpp.cs._2012._06.ChargePointStatus status) {
-        if (status.equals(ocpp.cs._2012._06.ChargePointStatus.OCCUPIED)) {
-            return ChargePointStatus.CHARGING;
-        } else {
-            return ChargePointStatus.fromValue(status.value());
+        switch (status) {
+            case OCCUPIED:
+                return ChargePointStatus.CHARGING;
+            default:
+                return ChargePointStatus.fromValue(status.value());
         }
     }
 
@@ -241,10 +242,27 @@ public enum Server15to16Impl implements Server15to16 {
      * Update: According to the 1.6 specification, MODE_3_ERROR was simply renamed to EV_COMMUNICATION_ERROR
      */
     private static ChargePointErrorCode customMapErrorCode(ocpp.cs._2012._06.ChargePointErrorCode errorCode15) {
-        if (errorCode15.equals(ocpp.cs._2012._06.ChargePointErrorCode.MODE_3_ERROR)) {
-            return ChargePointErrorCode.EV_COMMUNICATION_ERROR;
-        } else {
-            return ChargePointErrorCode.fromValue(errorCode15.value());
+        switch (errorCode15) {
+            case MODE_3_ERROR:
+                return ChargePointErrorCode.EV_COMMUNICATION_ERROR;
+            default:
+                return ChargePointErrorCode.fromValue(errorCode15.value());
+        }
+    }
+
+    /**
+     * AMP and VOLT are shortened to A and V, respectively.
+     *
+     * https://github.com/RWTH-i5-IDSG/steve/issues/59
+     */
+    private static UnitOfMeasure convertUnit(ocpp.cs._2012._06.UnitOfMeasure unit) {
+        switch (unit) {
+            case AMP:
+                return UnitOfMeasure.A;
+            case VOLT:
+                return UnitOfMeasure.V;
+            default:
+                return UnitOfMeasure.fromValue(unit.value());
         }
     }
 
@@ -268,7 +286,7 @@ public enum Server15to16Impl implements Server15to16 {
                 .withFormat(f.isSetFormat() ? ValueFormat.fromValue(f.getFormat().value()) : null)
                 .withLocation(f.isSetLocation() ? Location.fromValue(f.getLocation().value()) : null)
                 .withMeasurand(f.isSetMeasurand() ? Measurand.fromValue(f.getMeasurand().value()) : null)
-                .withUnit(f.isSetUnit() ? UnitOfMeasure.fromValue(f.getUnit().value()) : null)
+                .withUnit(f.isSetUnit() ? convertUnit(f.getUnit()) : null)
                 .withValue(f.getValue());
     }
 
@@ -284,12 +302,9 @@ public enum Server15to16Impl implements Server15to16 {
     }
 
     private static List<MeterValue> toOcpp16TransactionData(List<TransactionData> transactionData) {
-        List<ocpp.cs._2012._06.MeterValue> combinedList = transactionData.stream()
-                                                                         .flatMap(data -> data.getValues().stream())
-                                                                         .collect(Collectors.toList());
-
-        return combinedList.stream()
-                           .map(Server15to16Impl::toOcpp16MeterValue)
-                           .collect(Collectors.toList());
+        return transactionData.stream()
+                              .flatMap(data -> data.getValues().stream())
+                              .map(Server15to16Impl::toOcpp16MeterValue)
+                              .collect(Collectors.toList());
     }
 }
