@@ -3,7 +3,15 @@ package de.rwth.idsg.steve.web.controller;
 import de.rwth.idsg.steve.service.ChargePointService12_Client;
 import de.rwth.idsg.steve.service.ChargePointService15_Client;
 import de.rwth.idsg.steve.service.ChargePointService16_Client;
+<<<<<<< HEAD
 import de.rwth.idsg.steve.web.dto.ocpp.*;
+=======
+import de.rwth.idsg.steve.web.dto.ocpp.ChangeConfigurationParams;
+import de.rwth.idsg.steve.web.dto.ocpp.ConfigurationKeyEnum;
+import de.rwth.idsg.steve.web.dto.ocpp.ConfigurationKeyReadWriteEnum;
+import de.rwth.idsg.steve.web.dto.ocpp.GetConfigurationParams;
+import de.rwth.idsg.steve.web.dto.ocpp.TriggerMessageParams;
+>>>>>>> 2a5ede16f7c84864afe1d33ea46fc66233c6c1e5
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Controller;
@@ -16,6 +24,9 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import javax.validation.Valid;
 import java.util.Collections;
 import java.util.Map;
+
+import static de.rwth.idsg.steve.web.dto.ocpp.ConfigurationKeyReadWriteEnum.R;
+import static de.rwth.idsg.steve.web.dto.ocpp.ConfigurationKeyReadWriteEnum.RW;
 
 /**
  * @author Sevket Goekay <goekay@dbis.rwth-aachen.de>
@@ -62,15 +73,16 @@ public class Ocpp16Controller extends Ocpp15Controller {
         model.addAttribute("opVersion", "v1.6");
     }
 
-    /**
-     * Starting with OCPP 1.6 the configuration keys can be read-only or read-write. This method was returning all
-     * read-write keys, which was the case with older OCPP versions. So, it does not meet the needs anymore and should
-     * not be used.
-     */
-    @Deprecated
     @Override
-    protected Map<String, String> getConfigurationKeys() {
-        return Collections.emptyMap();
+    protected Map<String, String> getConfigurationKeys(ConfigurationKeyReadWriteEnum confEnum) {
+        switch (confEnum) {
+            case R:
+                return ConfigurationKeyEnum.OCPP_16_MAP_R;
+            case RW:
+                return ConfigurationKeyEnum.OCPP_16_MAP_RW;
+            default:
+                return Collections.emptyMap();
+        }
     }
 
     @Override
@@ -91,7 +103,7 @@ public class Ocpp16Controller extends Ocpp15Controller {
     public String getGetConf(Model model) {
         setCommonAttributes(model);
         model.addAttribute(PARAMS, new GetConfigurationParams());
-        model.addAttribute("ocppConfKeys", ConfigurationKeyEnum.OCPP_16_MAP_R);
+        model.addAttribute("ocppConfKeys", getConfigurationKeys(R));
         return getPrefix() + GET_CONF_PATH;
     }
 
@@ -99,7 +111,7 @@ public class Ocpp16Controller extends Ocpp15Controller {
     public String getChangeConf(Model model) {
         setCommonAttributes(model);
         model.addAttribute(PARAMS, new ChangeConfigurationParams());
-        model.addAttribute("ocppConfKeys", ConfigurationKeyEnum.OCPP_16_MAP_RW);
+        model.addAttribute("ocppConfKeys", getConfigurationKeys(RW));
         return getPrefix() + CHANGE_CONF_PATH;
     }
 
@@ -108,7 +120,7 @@ public class Ocpp16Controller extends Ocpp15Controller {
                               BindingResult result, Model model) {
         if (result.hasErrors()) {
             setCommonAttributes(model);
-            model.addAttribute("ocppConfKeys", ConfigurationKeyEnum.OCPP_16_MAP_R);
+            model.addAttribute("ocppConfKeys", getConfigurationKeys(R));
             return getPrefix() + GET_CONF_PATH;
         }
         return REDIRECT_TASKS_PATH + getClient15().getConfiguration(params);
