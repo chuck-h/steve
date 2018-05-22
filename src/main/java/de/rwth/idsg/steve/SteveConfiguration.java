@@ -1,9 +1,12 @@
 package de.rwth.idsg.steve;
 
+import de.rwth.idsg.steve.ocpp.ws.custom.WsSessionSelectStrategy;
 import de.rwth.idsg.steve.ocpp.ws.custom.WsSessionSelectStrategyEnum;
 import de.rwth.idsg.steve.utils.PropertiesFileLoader;
 import lombok.Builder;
 import lombok.Getter;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.crypto.password.PasswordEncoder;
 
 /**
  * @author Sevket Goekay <goekay@dbis.rwth-aachen.de>
@@ -30,6 +33,7 @@ public enum SteveConfiguration {
 
     private final String contextPath;
     private final String steveVersion;
+    private final String gitDescribe;
     private final ApplicationProfile profile;
     private final Ocpp ocpp;
     private final Auth auth;
@@ -41,6 +45,7 @@ public enum SteveConfiguration {
 
         contextPath = sanitizeContextPath(p.getOptionalString("context.path"));
         steveVersion = p.getString("steve.version");
+        gitDescribe = useFallbackIfNotSet(p.getOptionalString("git.describe"), null);
         profile = ApplicationProfile.fromName(p.getString("profile"));
 
         jetty = Jetty.builder()
@@ -63,9 +68,12 @@ public enum SteveConfiguration {
                .sqlLogging(p.getBoolean("db.sql.logging"))
                .build();
 
+        PasswordEncoder encoder = new BCryptPasswordEncoder();
+
         auth = Auth.builder()
+                   .passwordEncoder(encoder)
                    .userName(p.getString("auth.user"))
-                   .password(p.getString("auth.password"))
+                   .encodedPassword(encoder.encode(p.getString("auth.password")))
                    .build();
 
         ocpp = Ocpp.builder()
@@ -75,6 +83,26 @@ public enum SteveConfiguration {
                    .build();
 
         validate();
+    }
+
+    public String getSteveCompositeVersion() {
+        if (gitDescribe == null) {
+            return steveVersion;
+        } else {
+            return steveVersion + "-g" + gitDescribe;
+        }
+    }
+
+    private static String useFallbackIfNotSet(String value, String fallback) {
+        if (value == null) {
+            // if the property is optional, value will be null
+            return fallback;
+        } else if (value.startsWith("${")) {
+            // property value variables start with "${" (if maven is not used, the value will not be set)
+            return fallback;
+        } else {
+            return value;
+        }
     }
 
     private String sanitizeContextPath(String s) {
@@ -131,15 +159,16 @@ public enum SteveConfiguration {
     // Credentials for Web interface access
     @Builder @Getter
     public static class Auth {
+        private final PasswordEncoder passwordEncoder;
         private final String userName;
-        private final String password;
+        private final String encodedPassword;
     }
 
     // OCPP-related configuration
     @Builder @Getter
     public static class Ocpp {
         private final boolean autoRegisterUnknownStations;
-        private final WsSessionSelectStrategyEnum wsSessionSelectStrategy;
+        private final WsSessionSelectStrategy wsSessionSelectStrategy;
     }
 
 }

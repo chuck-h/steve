@@ -1,16 +1,14 @@
 package de.rwth.idsg.steve.ocpp.ws;
 
+import com.google.common.base.Strings;
 import de.rwth.idsg.steve.config.WebSocketConfiguration;
 import de.rwth.idsg.steve.ocpp.OcppVersion;
-import de.rwth.idsg.steve.ocpp.ws.custom.WsSessionSelectStrategy;
 import de.rwth.idsg.steve.ocpp.ws.data.CommunicationContext;
 import de.rwth.idsg.steve.ocpp.ws.data.SessionContext;
 import de.rwth.idsg.steve.ocpp.ws.pipeline.IncomingPipeline;
 import de.rwth.idsg.steve.repository.OcppServerRepository;
 import de.rwth.idsg.steve.service.NotificationService;
 import org.joda.time.DateTime;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.socket.BinaryMessage;
 import org.springframework.web.socket.CloseStatus;
@@ -34,29 +32,25 @@ import java.util.function.Consumer;
  * @since 17.03.2015
  */
 public abstract class AbstractWebSocketEndpoint implements WebSocketHandler {
-    private final Logger log = LoggerFactory.getLogger(getClass());
 
     @Autowired private ScheduledExecutorService service;
     @Autowired private OcppServerRepository ocppServerRepository;
     @Autowired private FutureResponseContextStore futureResponseContextStore;
-    @Autowired private WsSessionSelectStrategy wsSessionSelectStrategy;
     @Autowired private NotificationService notificationService;
 
     public static final String CHARGEBOX_ID_KEY = "CHARGEBOX_ID_KEY";
 
-    private IncomingPipeline pipeline;
-    private SessionContextStoreImpl sessionContextStore;
-
+    private final SessionContextStoreImpl sessionContextStore = new SessionContextStoreImpl();
     private final List<Consumer<String>> connectedCallbackList = new ArrayList<>();
     private final List<Consumer<String>> disconnectedCallbackList = new ArrayList<>();
-
     private final Object sessionContextLock = new Object();
+
+    private IncomingPipeline pipeline;
 
     public abstract OcppVersion getVersion();
 
     public void init(IncomingPipeline pipeline) {
         this.pipeline = pipeline;
-        sessionContextStore = new SessionContextStoreImpl(wsSessionSelectStrategy);
 
         connectedCallbackList.add((chargeBoxId) -> notificationService.ocppStationWebSocketConnected(chargeBoxId));
         disconnectedCallbackList.add((chargeBoxId) -> notificationService.ocppStationWebSocketDisconnected(chargeBoxId));
@@ -82,6 +76,12 @@ public abstract class AbstractWebSocketEndpoint implements WebSocketHandler {
         String incomingString = webSocketMessage.getPayload();
         String chargeBoxId = getChargeBoxId(session);
 
+        // https://github.com/RWTH-i5-IDSG/steve/issues/66
+        if (Strings.isNullOrEmpty(incomingString)) {
+            WebSocketLogger.receivedEmptyText(chargeBoxId, session);
+            return;
+        }
+
         WebSocketLogger.receivedText(chargeBoxId, session, incomingString);
 
         CommunicationContext context = new CommunicationContext(session, chargeBoxId);
@@ -92,8 +92,6 @@ public abstract class AbstractWebSocketEndpoint implements WebSocketHandler {
 
     private void handlePongMessage(WebSocketSession session) {
         WebSocketLogger.receivedPong(getChargeBoxId(session), session);
-
-        // TODO: Not sure about the following. Should update DB? Should call directly repo?
         ocppServerRepository.updateChargeboxHeartbeat(getChargeBoxId(session), DateTime.now());
     }
 
@@ -106,7 +104,7 @@ public abstract class AbstractWebSocketEndpoint implements WebSocketHandler {
         // Just to keep the connection alive, such that the servers do not close
         // the connection because of a idle timeout, we ping-pong at fixed intervals.
         ScheduledFuture pingSchedule = service.scheduleAtFixedRate(
-                new PingTask(session),
+                new PingTask(chargeBoxId, session),
                 WebSocketConfiguration.PING_INTERVAL,
                 WebSocketConfiguration.PING_INTERVAL,
                 TimeUnit.MINUTES);
@@ -151,8 +149,7 @@ public abstract class AbstractWebSocketEndpoint implements WebSocketHandler {
 
     @Override
     public void handleTransportError(WebSocketSession session, Throwable throwable) throws Exception {
-        log.error("Oops", throwable);
-        // TODO: Do something about this
+        WebSocketLogger.transportError(getChargeBoxId(session), session, throwable);
     }
 
     @Override
