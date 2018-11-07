@@ -1,3 +1,6 @@
+### Fork notes
+This fork of Steve is for exploring Smart Charging features; the work is in the SmartCharging branch.
+
 ![SteVe](src/main/resources/webapp/static/images/logo.png) 
 
 [![Build Status](https://travis-ci.org/RWTH-i5-IDSG/steve.svg)](https://travis-ci.org/RWTH-i5-IDSG/steve)
