@@ -17,7 +17,7 @@ import java.util.List;
  * @author David Rerimassie <david@rerimassie.nl>
  * @since 13.03.2018
  */
-public class GetCompositeScheduleTask extends CommunicationTask<GetCompositeScheduleParams, GetCompositeScheduleTask.ResponseWrapper> {
+public class GetCompositeScheduleTask extends Ocpp16AndAboveTask<GetCompositeScheduleParams, GetCompositeScheduleTask.ResponseWrapper> {
 
     public GetCompositeScheduleTask(OcppVersion ocppVersion, GetCompositeScheduleParams params) {
         super(ocppVersion, params);
@@ -70,18 +70,6 @@ public class GetCompositeScheduleTask extends CommunicationTask<GetCompositeSche
         return pcs;
     }
 
-    @Deprecated
-    @Override
-    public <T extends RequestType> T getOcpp12Request() {
-        throw new RuntimeException("Not supported");
-    }
-
-    @Deprecated
-    @Override
-    public <T extends RequestType> T getOcpp15Request() {
-        throw new RuntimeException("Not supported");
-    }
-
     @Override
     public ocpp.cp._2015._10.GetCompositeScheduleRequest getOcpp16Request() {
         if (params.isSetChargingRateUnit()) {
@@ -96,17 +84,6 @@ public class GetCompositeScheduleTask extends CommunicationTask<GetCompositeSche
         }
     }
 
-    @Deprecated
-    @Override
-    public <T extends ResponseType> AsyncHandler<T> getOcpp12Handler(String chargeBoxId) {
-        throw new RuntimeException("Not supported");
-    }
-
-    @Deprecated
-    @Override
-    public <T extends ResponseType> AsyncHandler<T> getOcpp15Handler(String chargeBoxId) {
-        throw new RuntimeException("Not supported");
-    }
 
     @Override
     public AsyncHandler<ocpp.cp._2015._10.GetCompositeScheduleResponse> getOcpp16Handler(String chargeBoxId) {

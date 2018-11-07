@@ -15,7 +15,7 @@ import static de.rwth.idsg.steve.utils.CspUtils.setCsp;
  * @author David Rerimassie <david@rerimassie.nl>
  * @since 13.03.2018
  */
-public class SetChargingProfileTask extends CommunicationTask<SetChargingProfileParams, String> {
+public class SetChargingProfileTask extends Ocpp16AndAboveTask<SetChargingProfileParams, String> {
 
     public SetChargingProfileTask(OcppVersion ocppVersion, SetChargingProfileParams params) {
         super(ocppVersion, params);
@@ -26,17 +26,6 @@ public class SetChargingProfileTask extends CommunicationTask<SetChargingProfile
         return new StringOcppCallback();
     }
 
-    @Deprecated
-    @Override
-    public <T extends RequestType> T getOcpp12Request() {
-        throw new RuntimeException("Not supported");
-    }
-
-    @Deprecated
-    @Override
-    public <T extends RequestType> T getOcpp15Request() {
-        throw new RuntimeException("Not supported");
-    }
 
     @Deprecated
     @Override
@@ -60,17 +49,6 @@ public class SetChargingProfileTask extends CommunicationTask<SetChargingProfile
                         .withMinChargingRate(params.getMinChargingRate() != null ? params.getMinChargingRate().setScale(1, RoundingMode.HALF_UP) : null)));
     }
 
-    @Deprecated
-    @Override
-    public <T extends ResponseType> AsyncHandler<T> getOcpp12Handler(String chargeBoxId) {
-        throw new RuntimeException("Not supported");
-    }
-
-    @Deprecated
-    @Override
-    public <T extends ResponseType> AsyncHandler<T> getOcpp15Handler(String chargeBoxId) {
-        throw new RuntimeException("Not supported");
-    }
 
     @Override
     public AsyncHandler<ocpp.cp._2015._10.SetChargingProfileResponse> getOcpp16Handler(String chargeBoxId) {

@@ -11,7 +11,7 @@ import javax.xml.ws.AsyncHandler;
  * @author David Rerimassie <david@rerimassie.nl>
  * @since 13.03.2018
  */
-public class ClearChargingProfileTask extends CommunicationTask<ClearChargingProfileParams, String> {
+public class ClearChargingProfileTask extends Ocpp16AndAboveTask<ClearChargingProfileParams, String> {
 
     public ClearChargingProfileTask(OcppVersion ocppVersion, ClearChargingProfileParams params) {
         super(ocppVersion, params);
@@ -20,18 +20,6 @@ public class ClearChargingProfileTask extends CommunicationTask<ClearChargingPro
     @Override
     public OcppCallback<String> defaultCallback() {
         return new StringOcppCallback();
-    }
-
-    @Deprecated
-    @Override
-    public <T extends RequestType> T getOcpp12Request() {
-        throw new RuntimeException("Not supported");
-    }
-
-    @Deprecated
-    @Override
-    public <T extends RequestType> T getOcpp15Request() {
-        throw new RuntimeException("Not supported");
     }
 
     @Override
@@ -50,17 +38,6 @@ public class ClearChargingProfileTask extends CommunicationTask<ClearChargingPro
         }
     }
 
-    @Deprecated
-    @Override
-    public <T extends ResponseType> AsyncHandler<T> getOcpp12Handler(String chargeBoxId) {
-        throw new RuntimeException("Not supported");
-    }
-
-    @Deprecated
-    @Override
-    public <T extends ResponseType> AsyncHandler<T> getOcpp15Handler(String chargeBoxId) {
-        throw new RuntimeException("Not supported");
-    }
 
     @Override
     public AsyncHandler<ocpp.cp._2015._10.ClearChargingProfileResponse> getOcpp16Handler(String chargeBoxId) {
