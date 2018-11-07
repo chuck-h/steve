@@ -1,33 +1,23 @@
-<form:form action="${ctxPath}/manager/operations/${opVersion}/RemoteStartTransaction" modelAttribute="params">
+<form:form action="${ctxPath}/manager/operations/${opVersion}/SetChargingProfile" modelAttribute="params">
 	<section><span>Charge Points with OCPP ${opVersion}</span></section>
-	<%@ include file="../00-cp-single.jsp" %>
+	<%@ include file="../00-cp-multiple.jsp" %>
 	<section><span>Parameters</span></section>
-	<table class="userInput">
+	<table class="userInput" border="0">
+		<div class="info"><b>Info:</b> Multiple Charging Schedule Periods can be set by separating the values with a ","</div>
 		<tr>
-			<td>Connector ID:</td>
+			<td>Connector ID :</td>
 			<td>
-				<form:select path="connectorId" disabled="true"/>
+				<form:input path="connectorId" placeholder="if empty, charge point(s) as a whole" />
 			</td>
 		</tr>
-		<tr>
-			<td>OCPP ID Tag:</td>
-			<td>
-				<form:select path="idTag">
-					<form:options items="${idTagList}" />
-				</form:select>
-			</td>
-		</tr>
-		<tr id="ChargingProfile" class="header expand" style="display:none;" >
-			<td id="chargp" class="noselect"><b>Charging Profile (optional) <span class="sign" /></b></td>
-			<td id="chargp2">
-				<form:checkbox id="checkb" path="useChargingProfile" onclick="this.checked=!this.checked;" />
-			</td>
-		</tr>
-		<tr data-for="ChargingProfile" style="display:none">
-			<td colspan="2" class="noselect"><i><b>Info:</b> Multiple Charging Schedule Periods can be set by separating the values with a ","</i></td>
-		</tr>
-		<tr data-for="ChargingProfile" style="display:none" class="header expand" id="cp">
+		<tr class="header expand" id="cp">
 			<td class="noselect"><b>Charging Profile <span class="sign" /></b></td>
+		</tr>
+		<tr data-for="cp" style="display:none">
+			<td>ID of the Active Transaction:</td>
+			<td>
+				<form:select path="transactionId" disabled="true" />
+			</td>
 		</tr>
 		<tr data-for="cp" style="display:none">
 			<td>Charging Profile ID (integer):</td>
@@ -44,8 +34,7 @@
 		<tr data-for="cp" style="display:none">
 			<td>Charging Profile Purpose :</td>
 			<td>
-				<form:select path="chargingProfilePurpose" disabled="true" >
-					<form:option value="TxProfile" label="TxProfile" />
+				<form:select path="chargingProfilePurpose" >
 					<form:options items="${chargingProfilePurpose}" />
 				</form:select>
 			</td>
@@ -79,7 +68,7 @@
 				<form:input path="validTo" cssClass="dateTimePicker" placeholder="optional" />
 			</td>
 		</tr>
-		<tr data-for="ChargingProfile" style="display:none" class="header expand" id="cs">
+		<tr class="header expand" id="cs">
 			<td class="noselect"><b>Charging Schedule <span class="sign" /></b></td>
 		</tr>
 		<tr data-for="cs" style="display:none">
@@ -108,7 +97,7 @@
 				<form:input path="minChargingRate" placeholder="optional" />
 			</td>
 		</tr>
-		<tr data-for="ChargingProfile" style="display:none" class="header expand" id="csp">
+		<tr class="header expand" id="csp">
 			<td class="noselect"><b>Charging Schedule Period <span class="sign" /></b></td>
 		</tr>
 		<tr data-for="csp" style="display:none">
@@ -137,53 +126,9 @@
 		</tr>
 	</table>
 	<script>
-		var cp = true; //true = "+", false = "-"
-		var cs = true; //true = "+", false = "-"
-		var csp = true; //true = "+", false = "-"
-		 
 		$(".header").click(function () {
 			$(this).toggleClass('expand').nextUntil('tr.header');
-			$("[data-for="+this.id+"]").slideToggle(10);
-			
-			if (this.id == "cp") {
-				cp = cp ? false : true;
-			} if (this.id == "cs") {
-				cs = cs ? false : true;
-			} if (this.id == "csp") {
-				csp = csp ? false : true;
-			}
+			$("[data-for="+this.id+"]").slideToggle(10);  
 		});
-		
-		$('#chargp, #chargp2').click(function () {
-			var inputs = document.getElementById("checkb");
-			
-			if (inputs.checked == false) {
-				inputs.checked = true;
-			} else if (inputs.checked == true) {
-				inputs.checked = false; 
-				
-				if(!cp) {
-					$("#cp").toggleClass('expand').nextUntil('tr.header');
-					cp = true;
-				} if(!cs) {
-					$("#cs").toggleClass('expand').nextUntil('tr.header');
-					cs = true;
-				} if(!csp) {
-					$("#csp").toggleClass('expand').nextUntil('tr.header');
-					csp = true;
-				}
-				
-				$("[data-for="+document.getElementById("cp").id+"]").slideUp(10);
-				$("[data-for="+document.getElementById("cs").id+"]").slideUp(10);
-				$("[data-for="+document.getElementById("csp").id+"]").slideUp(10);
-				
-			}
-		});
-		
-		var show = document.getElementById("ChargingProfile");
-		var version = '${opVersion}';
-		if (version == 'v1.6') {
-		  show.style.display = 'table-row';
-		}
 	</script>
 </form:form>

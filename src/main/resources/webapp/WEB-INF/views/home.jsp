@@ -1,4 +1,10 @@
 <%@ include file="00-header.jsp" %>
+<script>
+        $(document).ready(
+                setTimeout(function(){
+                    window.location.reload(1);
+                }, 60000));
+    </script>
 <div class="content">
 <div class="tileWrapper">
 	<a class="tileRow1" href="${ctxPath}/manager/chargepoints">

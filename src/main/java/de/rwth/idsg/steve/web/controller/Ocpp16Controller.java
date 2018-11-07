@@ -3,6 +3,7 @@ package de.rwth.idsg.steve.web.controller;
 import de.rwth.idsg.steve.service.ChargePointService12_Client;
 import de.rwth.idsg.steve.service.ChargePointService15_Client;
 import de.rwth.idsg.steve.service.ChargePointService16_Client;
+import de.rwth.idsg.steve.web.dto.ocpp.*;
 import de.rwth.idsg.steve.web.dto.ocpp.ChangeConfigurationParams;
 import de.rwth.idsg.steve.web.dto.ocpp.ConfigurationKeyEnum;
 import de.rwth.idsg.steve.web.dto.ocpp.ConfigurationKeyReadWriteEnum;
@@ -128,19 +129,22 @@ public class Ocpp16Controller extends Ocpp15Controller {
 
     @RequestMapping(value = GET_COMPOSITE_PATH, method = RequestMethod.GET)
     public String getCompositePath(Model model) {
-        model.addAttribute("opVersion", "v1.6");
+        setCommonAttributes(model);
+        model.addAttribute(PARAMS, new GetCompositeScheduleParams());
         return getPrefix() + GET_COMPOSITE_PATH;
     }
 
     @RequestMapping(value = CLEAR_CHARGING_PATH, method = RequestMethod.GET)
     public String getClearChargingProfile(Model model) {
-        model.addAttribute("opVersion", "v1.6");
+        setCommonAttributes(model);
+        model.addAttribute(PARAMS, new ClearChargingProfileParams());
         return getPrefix() + CLEAR_CHARGING_PATH;
     }
 
     @RequestMapping(value = SET_CHARGING_PATH, method = RequestMethod.GET)
     public String getSetChargingProfile(Model model) {
-        model.addAttribute("opVersion", "v1.6");
+        setCommonAttributes(model);
+        model.addAttribute(PARAMS, new SetChargingProfileParams());
         return getPrefix() + SET_CHARGING_PATH;
     }
 
@@ -154,6 +158,36 @@ public class Ocpp16Controller extends Ocpp15Controller {
     // -------------------------------------------------------------------------
     // Http methods (POST)
     // -------------------------------------------------------------------------
+
+    @RequestMapping(value = GET_COMPOSITE_PATH, method = RequestMethod.POST)
+    public String postGetCompositePath(@Valid @ModelAttribute(PARAMS) GetCompositeScheduleParams params,
+                                       BindingResult result, Model model) {
+        if (result.hasErrors()) {
+            setCommonAttributes(model);
+            return  getPrefix() + GET_COMPOSITE_PATH;
+        }
+        return REDIRECT_TASKS_PATH + getClient16().getCompositeSchedule(params);
+    }
+
+    @RequestMapping(value = CLEAR_CHARGING_PATH, method = RequestMethod.POST)
+    public String postClearChargingProfile(@Valid @ModelAttribute(PARAMS) ClearChargingProfileParams params,
+                                       BindingResult result, Model model) {
+        if (result.hasErrors()) {
+            setCommonAttributes(model);
+            return  getPrefix() + CLEAR_CHARGING_PATH;
+        }
+        return REDIRECT_TASKS_PATH + getClient16().clearChargingProfile(params);
+    }
+
+    @RequestMapping(value = SET_CHARGING_PATH, method = RequestMethod.POST)
+    public String postSetChargingProfile(@Valid @ModelAttribute(PARAMS) SetChargingProfileParams params,
+                                           BindingResult result, Model model) {
+        if (result.hasErrors()) {
+            setCommonAttributes(model);
+            return  getPrefix() + SET_CHARGING_PATH;
+        }
+        return REDIRECT_TASKS_PATH + getClient16().setChargingProfile(params);
+    }
 
     @RequestMapping(value = TRIGGER_MESSAGE_PATH, method = RequestMethod.POST)
     public String postTriggerMessage(@Valid @ModelAttribute(PARAMS) TriggerMessageParams params,

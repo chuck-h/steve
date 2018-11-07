@@ -48,20 +48,29 @@ public class ChargePointService16_InvokerImpl implements ChargePointService16_In
 
     @Override
     public void clearChargingProfile(ChargePointSelect cp, ClearChargingProfileTask task) {
-        // TODO
-        throw new RuntimeException("Not implemented");
+        if (cp.isSoap()) {
+            create(cp).clearChargingProfileAsync(task.getOcpp16Request(), cp.getChargeBoxId(), task.getOcpp16Handler(cp.getChargeBoxId()));
+        } else {
+            runPipeline(cp, task);
+        }
     }
 
     @Override
     public void setChargingProfile(ChargePointSelect cp, SetChargingProfileTask task) {
-        // TODO
-        throw new RuntimeException("Not implemented");
+        if (cp.isSoap()) {
+            create(cp).setChargingProfileAsync(task.getOcpp16Request(), cp.getChargeBoxId(), task.getOcpp16Handler(cp.getChargeBoxId()));
+        } else {
+            runPipeline(cp, task);
+        }
     }
 
     @Override
     public void getCompositeSchedule(ChargePointSelect cp, GetCompositeScheduleTask task) {
-        // TODO
-        throw new RuntimeException("Not implemented");
+        if (cp.isSoap()) {
+            create(cp).getCompositeScheduleAsync(task.getOcpp16Request(), cp.getChargeBoxId(), task.getOcpp16Handler(cp.getChargeBoxId()));
+        } else {
+            runPipeline(cp, task);
+        }
     }
 
     @Override

@@ -1,5 +1,11 @@
 <%@ include file="../00-header.jsp" %>
 <%@ include file="../00-op-bind-errors.jsp" %>
+<script type="text/javascript">
+    $(document).ready(function() {
+        <%@ include file="../snippets/getTransactionIdsSetChargeProfile.js" %>
+        <%@ include file="../snippets/dateTimePicker.js" %>
+    });
+</script>
 <div class="content">
     <div class="left-menu">
         <ul>
@@ -27,7 +33,6 @@
         </ul>
     </div>
     <div class="op16-content">
-        <center><i>Not implemented.</i></center>
+        <%@ include file="../op-forms/SetChargingProfileForm.jsp" %>
     </div></div>
-</div></div>
 <%@ include file="../00-footer.jsp" %>

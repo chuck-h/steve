@@ -32,9 +32,9 @@ public enum LoggingFeatureProxy {
             StringBuilder b = new StringBuilder();
 
             b.append('\n') // Start from the next line to have the output well-aligned
-             .append("    ExchangeId: ").append(event.getExchangeId())
-             .append('\n')
-             .append("    Payload: ").append(event.getPayload());
+                    .append("    ExchangeId: ").append(event.getExchangeId())
+                    .append('\n')
+                    .append("    Payload: ").append(event.getPayload());
 
             return b.toString();
         }

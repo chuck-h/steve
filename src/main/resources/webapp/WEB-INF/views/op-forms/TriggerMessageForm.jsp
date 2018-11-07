@@ -13,7 +13,7 @@
         </tr>
         <tr>
             <td>Connector ID (integer):</td>
-            <td><form:input path="connectorId" placeholder="if empty, charge point as a whole"/></td>
+            <td><form:input path="connectorId" placeholder="if empty, charge point(s) as a whole"/></td>
         </tr>
         <tr>
             <td></td><td><div class="submit-button"><input type="submit" value="Perform"></div></td>
