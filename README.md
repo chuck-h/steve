@@ -1,5 +1,5 @@
 ### Fork notes
-This fork of Steve is for exploring Smart Charging features; the work is in the SmartCharging branch.
+This fork of Steve is for exploring Smart Charging features. It is a submodule of https://github.com/chuck-h/SteVe-SC, which also includes a LoadManager software component which interoperates with this submodule.
 
 ![SteVe](src/main/resources/webapp/static/images/logo.png) 
 
