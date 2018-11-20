@@ -39,6 +39,7 @@ public enum SteveConfiguration {
     private final Auth auth;
     private final DB db;
     private final Jetty jetty;
+    private final Emon emon;
 
     SteveConfiguration() {
         PropertiesFileLoader p = new PropertiesFileLoader("main.properties");
@@ -80,6 +81,12 @@ public enum SteveConfiguration {
                    .autoRegisterUnknownStations(p.getOptionalBoolean("auto.register.unknown.stations"))
                    .wsSessionSelectStrategy(
                            WsSessionSelectStrategyEnum.fromName(p.getString("ws.session.select.strategy")))
+                   .build();
+
+        emon = Emon.builder()
+                   .enabled(p.getOptionalBoolean("emonpub.enabled"))
+                   .uri(p.getOptionalString("emonpub.uri"))
+                   .apikey(p.getOptionalString("emonpub.apikey"))
                    .build();
 
         validate();
@@ -169,6 +176,15 @@ public enum SteveConfiguration {
     public static class Ocpp {
         private final boolean autoRegisterUnknownStations;
         private final WsSessionSelectStrategy wsSessionSelectStrategy;
+    }
+
+    // SteVe-SC emoncms-related configuration
+    @Builder @Getter
+    public static class Emon {
+        private final boolean enabled;
+        private final String uri;
+        private final String node;
+        private final String apikey;
     }
 
 }

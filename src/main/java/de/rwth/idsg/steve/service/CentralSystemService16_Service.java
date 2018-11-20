@@ -51,6 +51,7 @@ public class CentralSystemService16_Service {
     @Autowired private OcppTagService ocppTagService;
     @Autowired private NotificationService notificationService;
     @Autowired private ChargePointHelperService chargePointHelperService;
+    @Autowired private MeasurementExportService measurementExportService;
 
     public BootNotificationResponse bootNotification(BootNotificationRequest parameters, String chargeBoxIdentity,
                                                      OcppProtocol ocppProtocol) {
@@ -126,6 +127,9 @@ public class CentralSystemService16_Service {
         if (parameters.isSetMeterValue()) {
             ocppServerRepository.insertMeterValues(chargeBoxIdentity, parameters.getMeterValue(),
                                                    parameters.getConnectorId(), parameters.getTransactionId());
+            measurementExportService.ocppMeasurement(chargeBoxIdentity, parameters.getMeterValue(),
+                                                   parameters.getConnectorId());
+
         }
         return new MeterValuesResponse();
     }
