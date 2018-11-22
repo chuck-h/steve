@@ -1,29 +1,59 @@
 package de.rwth.idsg.steve.service;
 
+import com.google.common.base.Joiner;
 import de.rwth.idsg.steve.SteveConfiguration;
-import com.google.common.base.Strings;
+import lombok.Builder;
 import lombok.extern.slf4j.Slf4j;
-import org.joda.time.DateTime;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
+import ocpp.cs._2015._10.Measurand;
 import ocpp.cs._2015._10.MeterValue;
 import ocpp.cs._2015._10.SampledValue;
+import ocpp.cs._2015._10.UnitOfMeasure;
+import org.apache.http.client.methods.HttpGet;
+import org.apache.http.client.utils.URIBuilder;
+import org.apache.http.impl.client.BasicResponseHandler;
+import org.apache.http.impl.client.CloseableHttpClient;
+import org.apache.http.impl.client.HttpClients;
+import org.springframework.stereotype.Service;
 
-import static java.lang.String.format;
+import javax.annotation.PostConstruct;
+import javax.annotation.PreDestroy;
+import java.io.IOException;
+import java.net.URI;
+import java.net.URISyntaxException;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
-import java.net.URL;
-import java.io.*;
-import javax.net.ssl.HttpsURLConnection;
 
 /**
+ * Derived from SteVe project
+ *
  * @author Chuck Harrison <cfharr@gmail.com>
- * derived from SteVe project 
  * @author Sevket Goekay <goekay@dbis.rwth-aachen.de>
  */
 @Slf4j
 @Service
-public class MeasurementExportServiceImpl implements MeasurementExportService{
+public class MeasurementExportServiceImpl implements MeasurementExportService {
+
+    private static final Joiner joiner = Joiner.on(",").skipNulls();
+
+    private CloseableHttpClient httpClient;
+
+    @PostConstruct
+    private void init() {
+        // "Reuse the HttpClient instance: Generally it is recommended to have a single instance of HttpClient
+        // per communication component or even per application.";
+        httpClient = HttpClients.createDefault();
+    }
+
+    @PreDestroy
+    private void destroy() {
+        try {
+            httpClient.close();
+        } catch (IOException e) {
+            log.error("Failed to close HttpClient", e);
+        }
+    }
+
     @Override
     public void ocppMeasurement(String chargeBoxId, List<MeterValue> values, int connectorId) {
         // if emonpub is enabled: send HTTPS POST request to emon host
@@ -31,30 +61,62 @@ public class MeasurementExportServiceImpl implements MeasurementExportService{
         if (!emon.isEnabled()) {
             return;
         }
-        // report only the first 'Current.Import' reading in list, assuming amperes
-        // TODO generalize
-        List<SampledValue> currents = values.get(0).getSampledValue().stream()
-                                .filter(p -> p.getMeasurand().value() == "Current.Import")
-                                .collect(Collectors.toList());
-        Float v = Float.parseFloat(currents.get(0).getValue());
-        String emonQuery = format("%s/input/post?node=%s&fulljson={\"amp\":%.2f,\"connectorid\":%d}&apikey=%s",
-                                  emon.getUri(), chargeBoxId, v, connectorId, emon.getApikey());
-        try {
-            URL emonUrl = new URL(emonQuery);
-            HttpsURLConnection conn = (HttpsURLConnection)emonUrl.openConnection();
-            InputStream is = conn.getInputStream();
-            InputStreamReader isr = new InputStreamReader(is);
-            BufferedReader br = new BufferedReader(isr);
-            String inputLine;
-            while ((inputLine = br.readLine()) != null) {
-                log.info("emonpub response: " + inputLine);
-            }
-            br.close();
-        }
-        catch (Exception e) {
-            log.info("Exception occurred " + e.getMessage());
-        }
 
+        List<PostCsvData> dataToPost = getData(chargeBoxId, values, connectorId);
 
+        for (PostCsvData postData : dataToPost) {
+            postSingleData(emon, postData);
+        }
     }
+
+    private void postSingleData(SteveConfiguration.Emon emon, PostCsvData postData) {
+        try {
+            URI uri = new URIBuilder(emon.getUri()).setPath("/input/post")
+                                                   .setParameter("time", Long.toString(postData.timeInMillis))
+                                                   .setParameter("node", postData.node)
+                                                   .setParameter("csv", postData.csv)
+                                                   .setParameter("apikey", emon.getApikey())
+                                                   .build();
+
+            String responseBody = httpClient.execute(new HttpGet(uri), new BasicResponseHandler());
+            log.info("emonpub response: {}", responseBody);
+        } catch (IOException e) {
+            log.error("emonpub call failed", e);
+        } catch (URISyntaxException e) {
+            log.error("emonpub uri is not valid", e);
+        }
+    }
+
+    private static List<PostCsvData> getData(String chargeBoxId, List<MeterValue> values, int connectorId) {
+        List<PostCsvData> postDataList = new ArrayList<>();
+
+        for (MeterValue value : values) {
+            List<String> ampereValues =
+                    value.getSampledValue()
+                         .stream()
+                         .filter(sv -> sv.getMeasurand() == Measurand.CURRENT_IMPORT)
+                         .filter(sv -> sv.getUnit() == UnitOfMeasure.A)
+                         .map(SampledValue::getValue)
+                         .collect(Collectors.toList());
+
+            if (!ampereValues.isEmpty()) {
+                PostCsvData data = PostCsvData.builder()
+                                              .timeInMillis(value.getTimestamp().getMillis())
+                                              .node(chargeBoxId + "#" + connectorId)
+                                              .csv(joiner.join(ampereValues))
+                                              .build();
+                postDataList.add(data);
+            }
+        }
+
+        return postDataList;
+    }
+    
+    @Builder
+    private static class PostCsvData {
+        private final long timeInMillis;
+        private final String node;
+        private final String csv; // with comma delimiter
+    }
+
 }
