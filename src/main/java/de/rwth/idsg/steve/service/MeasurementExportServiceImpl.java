@@ -71,8 +71,7 @@ public class MeasurementExportServiceImpl implements MeasurementExportService {
 
     private void postSingleData(SteveConfiguration.Emon emon, PostCsvData postData) {
         try {
-            URI uri = new URIBuilder(emon.getUri()).setPath("/input/post")
-                                                   .setParameter("time", Long.toString(postData.timeInMillis))
+            URI uri = new URIBuilder(emon.getUri()+"/input/post").setParameter("time", Long.toString(postData.timeInSec))
                                                    .setParameter("node", postData.node)
                                                    .setParameter("csv", postData.csv)
                                                    .setParameter("apikey", emon.getApikey())
@@ -101,8 +100,8 @@ public class MeasurementExportServiceImpl implements MeasurementExportService {
 
             if (!ampereValues.isEmpty()) {
                 PostCsvData data = PostCsvData.builder()
-                                              .timeInMillis(value.getTimestamp().getMillis())
-                                              .node(chargeBoxId + "#" + connectorId)
+                                              .timeInSec(value.getTimestamp().getMillis()/1000)
+                                              .node(chargeBoxId + "-C" + connectorId)
                                               .csv(joiner.join(ampereValues))
                                               .build();
                 postDataList.add(data);
@@ -114,7 +113,7 @@ public class MeasurementExportServiceImpl implements MeasurementExportService {
     
     @Builder
     private static class PostCsvData {
-        private final long timeInMillis;
+        private final long timeInSec;
         private final String node;
         private final String csv; // with comma delimiter
     }
