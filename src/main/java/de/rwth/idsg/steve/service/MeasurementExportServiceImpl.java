@@ -78,7 +78,7 @@ public class MeasurementExportServiceImpl implements MeasurementExportService {
                                                    .setParameter("apikey", emon.getApikey())
                                                    .build();
 
-            log.info("posting " + uri.toString());
+            //log.info("posting " + uri.toString());
             String responseBody = httpClient.execute(new HttpGet(uri), new BasicResponseHandler());
             log.info("emonpub response: {}", responseBody);
         } catch (IOException e) {
@@ -90,27 +90,33 @@ public class MeasurementExportServiceImpl implements MeasurementExportService {
 
     private static List<PostEmonData> getData(String chargeBoxId, List<MeterValue> values, int connectorId) {
         List<PostEmonData> postDataList = new ArrayList<>();
-        // TODO: generalize to (1) three-phase current readings (2) additional measurands e.g. volts, kWh
+        // TODO: test with a variety of MeterValue messages (including multiple report)
         for (MeterValue value : values) {
-            List<String> reportValues =
+            List<String> jsonValues = new ArrayList<>();
+            jsonValues.addAll(
                     value.getSampledValue()
                          .stream()
                          .filter(sv -> sv.getMeasurand() == Measurand.CURRENT_IMPORT)
                          .filter(sv -> sv.getUnit() == UnitOfMeasure.A)
-                         .filter(sv -> sv.getPhase() == Phase.L_1_N)
-                         .map(SampledValue::getValue)
-                         .collect(Collectors.toList());
+                         .map(sv -> "\"amp" + sv.getPhase().value() + "\":" + sv.getValue())
+                         .collect(Collectors.toList())
+                    );
+            jsonValues.addAll(
+                    value.getSampledValue()
+                         .stream()
+                         .filter(sv -> sv.getMeasurand() == Measurand.ENERGY_ACTIVE_IMPORT_REGISTER)
+                         .filter(sv -> sv.getUnit() == UnitOfMeasure.K_WH)
+                         .map(sv -> "\"kWh" + sv.getPhase().value() + "\":" + sv.getValue())
+                         .collect(Collectors.toList())
+                    );
 
-            if (!reportValues.isEmpty()) {
+            if (!jsonValues.isEmpty()) {
                 PostEmonData data = PostEmonData.builder()
                                               .timeInSec(value.getTimestamp().getMillis()/1000)
                                               .node(chargeBoxId + "-C" + connectorId)
-                                              .json("{\"ampL1-N\":" + reportValues.get(0) + "}")
+                                              .json("{" + String.join(",", jsonValues) + "}")
                                               .build();
                 postDataList.add(data);
-                if (reportValues.size()>1) {
-                    log.warn(reportValues.size() + " simultaneous L1-N amp readings for " + data.node + ", only 1st value reported.");
-                }
             }
         }
 
