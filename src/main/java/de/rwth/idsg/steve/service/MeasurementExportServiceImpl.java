@@ -8,6 +8,7 @@ import ocpp.cs._2015._10.Measurand;
 import ocpp.cs._2015._10.MeterValue;
 import ocpp.cs._2015._10.SampledValue;
 import ocpp.cs._2015._10.UnitOfMeasure;
+import ocpp.cs._2015._10.Phase;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.utils.URIBuilder;
 import org.apache.http.impl.client.BasicResponseHandler;
@@ -62,21 +63,22 @@ public class MeasurementExportServiceImpl implements MeasurementExportService {
             return;
         }
 
-        List<PostCsvData> dataToPost = getData(chargeBoxId, values, connectorId);
+        List<PostEmonData> dataToPost = getData(chargeBoxId, values, connectorId);
 
-        for (PostCsvData postData : dataToPost) {
+        for (PostEmonData postData : dataToPost) {
             postSingleData(emon, postData);
         }
     }
 
-    private void postSingleData(SteveConfiguration.Emon emon, PostCsvData postData) {
+    private void postSingleData(SteveConfiguration.Emon emon, PostEmonData postData) {
         try {
             URI uri = new URIBuilder(emon.getUri()+"/input/post").setParameter("time", Long.toString(postData.timeInSec))
                                                    .setParameter("node", postData.node)
-                                                   .setParameter("csv", postData.csv)
+                                                   .setParameter("fulljson", postData.json)
                                                    .setParameter("apikey", emon.getApikey())
                                                    .build();
 
+            log.info("posting " + uri.toString());
             String responseBody = httpClient.execute(new HttpGet(uri), new BasicResponseHandler());
             log.info("emonpub response: {}", responseBody);
         } catch (IOException e) {
@@ -86,25 +88,29 @@ public class MeasurementExportServiceImpl implements MeasurementExportService {
         }
     }
 
-    private static List<PostCsvData> getData(String chargeBoxId, List<MeterValue> values, int connectorId) {
-        List<PostCsvData> postDataList = new ArrayList<>();
-
+    private static List<PostEmonData> getData(String chargeBoxId, List<MeterValue> values, int connectorId) {
+        List<PostEmonData> postDataList = new ArrayList<>();
+        // TODO: generalize to (1) three-phase current readings (2) additional measurands e.g. volts, kWh
         for (MeterValue value : values) {
-            List<String> ampereValues =
+            List<String> reportValues =
                     value.getSampledValue()
                          .stream()
                          .filter(sv -> sv.getMeasurand() == Measurand.CURRENT_IMPORT)
                          .filter(sv -> sv.getUnit() == UnitOfMeasure.A)
+                         .filter(sv -> sv.getPhase() == Phase.L_1_N)
                          .map(SampledValue::getValue)
                          .collect(Collectors.toList());
 
-            if (!ampereValues.isEmpty()) {
-                PostCsvData data = PostCsvData.builder()
+            if (!reportValues.isEmpty()) {
+                PostEmonData data = PostEmonData.builder()
                                               .timeInSec(value.getTimestamp().getMillis()/1000)
                                               .node(chargeBoxId + "-C" + connectorId)
-                                              .csv(joiner.join(ampereValues))
+                                              .json("{\"ampL1-N\":" + reportValues.get(0) + "}")
                                               .build();
                 postDataList.add(data);
+                if (reportValues.size()>1) {
+                    log.warn(reportValues.size() + " simultaneous L1-N amp readings for " + data.node + ", only 1st value reported.");
+                }
             }
         }
 
@@ -112,10 +118,10 @@ public class MeasurementExportServiceImpl implements MeasurementExportService {
     }
     
     @Builder
-    private static class PostCsvData {
+    private static class PostEmonData {
         private final long timeInSec;
         private final String node;
-        private final String csv; // with comma delimiter
+        private final String json;
     }
 
 }
