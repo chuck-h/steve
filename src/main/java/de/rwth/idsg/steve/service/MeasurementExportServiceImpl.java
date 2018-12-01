@@ -71,20 +71,23 @@ public class MeasurementExportServiceImpl implements MeasurementExportService {
     }
 
     private void postSingleData(SteveConfiguration.Emon emon, PostEmonData postData) {
-        try {
-            URI uri = new URIBuilder(emon.getUri()+"/input/post").setParameter("time", Long.toString(postData.timeInSec))
-                                                   .setParameter("node", postData.node)
-                                                   .setParameter("fulljson", postData.json)
-                                                   .setParameter("apikey", emon.getApikey())
-                                                   .build();
+        for (String uriString:emon.getUris().split(",")) {
+            // TODO support multiple apikeys to match multiple uri's
+            try {
+                URI uri = new URIBuilder(uriString+"/input/post").setParameter("time", Long.toString(postData.timeInSec))
+                                                       .setParameter("node", postData.node)
+                                                       .setParameter("fulljson", postData.json)
+                                                       .setParameter("apikey", emon.getApikey())
+                                                       .build();
 
             //log.info("posting " + uri.toString());
             String responseBody = httpClient.execute(new HttpGet(uri), new BasicResponseHandler());
-            log.info("emonpub response: {}", responseBody);
-        } catch (IOException e) {
-            log.error("emonpub call failed", e);
-        } catch (URISyntaxException e) {
-            log.error("emonpub uri is not valid", e);
+            log.info("emonpub {} response: {}", uriString, responseBody);
+            } catch (IOException e) {
+                log.error("emonpub call failed", e);
+            } catch (URISyntaxException e) {
+                log.error("emonpub uri is not valid", e);
+            }
         }
     }
 
