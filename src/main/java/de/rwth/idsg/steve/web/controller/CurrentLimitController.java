@@ -83,7 +83,7 @@ public class CurrentLimitController {
             catch (IOException e) {
                 return e.getMessage();
             }
-            String splitNode[] = node.split("-C");
+            String splitNode[] = node.split("-C(?=[0-9]{1,2}$)"); // split off final -Cnn connector number nn
             String chargeBoxId = splitNode[0];
             Map<String, Integer> idPkPair = chargePointRepository.getChargeBoxIdPkPair(List.of(chargeBoxId));
             Integer chargeBoxPk = idPkPair.get(chargeBoxId);
@@ -94,8 +94,10 @@ public class CurrentLimitController {
             else {
                rv += "charge point " + chargeBoxId + " pk is " + chargeBoxPk + "<br>";
             }
-            Integer connectorId = Integer.parseInt(splitNode[1]); // could throw format exception
-
+            if (splitNode.length != 2) {
+               rv += "node ID lacks connector suffix -Cnn<br>";
+               return rv;
+            Integer connectorId = Integer.parseInt(splitNode[1]);
             if (clearConnectorChargingProfiles(chargeBoxId, connectorId)) {
                 rv += "charging profile clear <br>";
             }
