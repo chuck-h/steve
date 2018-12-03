@@ -8,11 +8,13 @@
         </div>
     </c:if>
 <table class="userInputFullPage">
+	<tr><td>This is a modified version of SteVe</td><td>supporting a Load Management interface</td></tr>
 	<tr><td>Version:</td><td>${version}</td></tr>
 	<tr><td>Database Version:</td><td>${db.version}</td></tr>
 	<tr><td>Last Database Update:</td><td>${db.updateTimestamp}</td></tr>
     <tr><td>Log File:</td><td>${logFile}</td></tr>
-	<tr><td>GitHub Page:</td><td><a href="https://github.com/RWTH-i5-IDSG/steve">https://github.com/RWTH-i5-IDSG/steve</a></td></tr>
+	<tr><td>GitHub Page:</td><td><a href="https://github.com/chuck-h/steve">https://github.com/chuck-h/steve</a></td></tr>
+	<tr><td>Forked from:</td><td><a href="https://github.com/RWTH-i5-IDSG/steve">https://github.com/RWTH-i5-IDSG/steve</a></td></tr>
     <tr><td>System Time:</td><td>${systemTime}</td></tr>
     <tr><td>System Time Zone:</td><td>${systemTimeZone}</td></tr>
 </table>
