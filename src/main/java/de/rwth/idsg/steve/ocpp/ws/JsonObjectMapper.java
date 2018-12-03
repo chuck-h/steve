@@ -3,6 +3,7 @@ package de.rwth.idsg.steve.ocpp.ws;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.databind.AnnotationIntrospector;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fasterxml.jackson.databind.introspect.JacksonAnnotationIntrospector;
 import com.fasterxml.jackson.module.jaxb.JaxbAnnotationIntrospector;
 import de.rwth.idsg.steve.ocpp.ws.ocpp12.Ocpp12JacksonModule;
@@ -38,6 +39,7 @@ public enum JsonObjectMapper {
         mapper.registerModule(new Ocpp12JacksonModule());
         mapper.registerModule(new Ocpp15JacksonModule());
         mapper.registerModule(new Ocpp16JacksonModule());
+        mapper.enable(SerializationFeature.WRITE_BIGDECIMAL_AS_PLAIN);
 
         mapper.setAnnotationIntrospector(
                 AnnotationIntrospector.pair(
