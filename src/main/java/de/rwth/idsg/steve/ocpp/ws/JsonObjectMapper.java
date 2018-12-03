@@ -3,7 +3,6 @@ package de.rwth.idsg.steve.ocpp.ws;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.databind.AnnotationIntrospector;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fasterxml.jackson.databind.introspect.JacksonAnnotationIntrospector;
 import com.fasterxml.jackson.module.jaxb.JaxbAnnotationIntrospector;
 import de.rwth.idsg.steve.ocpp.ws.ocpp12.Ocpp12JacksonModule;
@@ -36,13 +35,11 @@ public enum JsonObjectMapper {
         // response with a transactionId, but an error message. if we do not fail early, it will fail at the database
         // level which we want to prevent.
         mapper.configure(FAIL_ON_NULL_FOR_PRIMITIVES, true);
-
         mapper.configure(WRITE_BIGDECIMAL_AS_PLAIN, true);
 
         mapper.registerModule(new Ocpp12JacksonModule());
         mapper.registerModule(new Ocpp15JacksonModule());
         mapper.registerModule(new Ocpp16JacksonModule());
-        mapper.enable(SerializationFeature.WRITE_BIGDECIMAL_AS_PLAIN);
 
         mapper.setAnnotationIntrospector(
                 AnnotationIntrospector.pair(
