@@ -162,8 +162,8 @@ public class CurrentLimitController {
 
     private ChargingProfileForm defaultTxProfileForm(Double limitInAmperes, Integer numberOfPhases) {
         ChargingProfileForm form = new ChargingProfileForm();
-        form.setDescription("Description");
-        form.setNote("Note");
+        form.setDescription("Created by CurrentLimitController");
+        form.setNote("");
         form.setStackLevel(0);
         form.setChargingProfilePurpose(ChargingProfilePurposeType.TX_DEFAULT_PROFILE);
         form.setChargingProfileKind(ChargingProfileKindType.RELATIVE);
