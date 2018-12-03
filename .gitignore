@@ -2,3 +2,5 @@
 /.idea
 *.iml
 .DS_Store
+/src/main/resources/config/prod/main.properties
+.gitignore
