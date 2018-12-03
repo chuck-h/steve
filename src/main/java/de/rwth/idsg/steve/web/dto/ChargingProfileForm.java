@@ -11,6 +11,8 @@ import org.joda.time.LocalDateTime;
 import javax.validation.Valid;
 import javax.validation.constraints.AssertTrue;
 import javax.validation.constraints.Future;
+import javax.validation.constraints.Max;
+import javax.validation.constraints.Min;
 import javax.validation.constraints.NotEmpty;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Positive;
@@ -107,8 +109,11 @@ public class ChargingProfileForm {
         private Integer startPeriodInSeconds; // from the startSchedule
 
         @NotNull(message = "Power Limit has to be set")
+        @PositiveOrZero(message = "Power Limit cannot be negative")
         private BigDecimal powerLimitInAmperes;
 
+        @Min(value = 1)
+        @Max(value = 3)
         private Integer numberPhases;
 
         public Integer getNumberPhases() {
