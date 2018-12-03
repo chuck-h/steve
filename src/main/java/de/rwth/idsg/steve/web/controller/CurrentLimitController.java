@@ -97,6 +97,7 @@ public class CurrentLimitController {
             if (splitNode.length != 2) {
                rv += "node ID lacks connector suffix -Cnn<br>";
                return rv;
+            }
             Integer connectorId = Integer.parseInt(splitNode[1]);
             if (clearConnectorChargingProfiles(chargeBoxId, connectorId)) {
                 rv += "charging profile clear <br>";
