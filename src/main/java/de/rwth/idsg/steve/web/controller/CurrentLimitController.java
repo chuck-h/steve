@@ -148,7 +148,7 @@ public class CurrentLimitController {
         client16.clearChargingProfile(params);
         // TODO get success/failure status; temporary hack: delay for reply and assume ok
         try {
-            TimeUnit.SECONDS.sleep(1);
+            TimeUnit.SECONDS.sleep(2);
         }
         catch(InterruptedException ex) {
         } // never mind
