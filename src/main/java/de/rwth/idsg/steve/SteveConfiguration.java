@@ -85,8 +85,6 @@ public enum SteveConfiguration {
 
         emon = Emon.builder()
                    .enabled(p.getOptionalBoolean("emonpub.enabled"))
-                   .uris(p.getOptionalString("emonpub.uris"))
-                   .apikey(p.getOptionalString("emonpub.apikey"))
                    .build();
 
         validate();
@@ -182,9 +180,7 @@ public enum SteveConfiguration {
     @Builder @Getter
     public static class Emon {
         private final boolean enabled;
-        private final String uris;
-        private final String node;
-        private final String apikey;
+
     }
 
 }

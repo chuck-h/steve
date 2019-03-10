@@ -15,6 +15,8 @@ import org.apache.http.impl.client.BasicResponseHandler;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClients;
 import org.springframework.stereotype.Service;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.jooq.DSLContext;
 
 import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
@@ -23,8 +25,12 @@ import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
+import static jooq.steve.db.tables.CommPartners.COMM_PARTNERS;
+import static jooq.steve.db.tables.Connector.CONNECTOR;
+import static jooq.steve.db.tables.ConnectorFeatures.CONNECTOR_FEATURES;
 /**
  * Derived from SteVe project
  *
@@ -34,6 +40,8 @@ import java.util.stream.Collectors;
 @Slf4j
 @Service
 public class MeasurementExportServiceImpl implements MeasurementExportService {
+
+    @Autowired private DSLContext ctx;
 
     private static final Joiner joiner = Joiner.on(",").skipNulls();
 
@@ -57,7 +65,7 @@ public class MeasurementExportServiceImpl implements MeasurementExportService {
 
     @Override
     public void ocppMeasurement(String chargeBoxId, List<MeterValue> values, int connectorId) {
-        // if emonpub is enabled: send HTTPS POST request to emon host
+        // if emonpub is enabled: send HTTPS POST request to emon host(s)
         SteveConfiguration.Emon emon = SteveConfiguration.CONFIG.getEmon();
         if (!emon.isEnabled()) {
             return;
@@ -66,29 +74,43 @@ public class MeasurementExportServiceImpl implements MeasurementExportService {
         List<PostEmonData> dataToPost = getData(chargeBoxId, values, connectorId);
 
         for (PostEmonData postData : dataToPost) {
-            postSingleData(emon, postData);
+            postSingleData(emon, postData, chargeBoxId, connectorId);
         }
     }
 
-    private void postSingleData(SteveConfiguration.Emon emon, PostEmonData postData) {
-        for (String uriString:emon.getUris().split(",")) {
-            // TODO support multiple apikeys to match multiple uri's
+    private void postSingleData(SteveConfiguration.Emon emon, PostEmonData postData,
+                                String chargeBoxId, int connectorId) {
+        int connectorPk = getConnectorPkFromConnector(ctx, chargeBoxId, connectorId);
+        List<Map<String, Object>> result = ctx.select(COMM_PARTNERS.URL, COMM_PARTNERS.APIKEY)
+                                 .from(COMM_PARTNERS)
+                                 .join(CONNECTOR_FEATURES)
+                                 .on(CONNECTOR_FEATURES.REPORTING_PARTNER.equal(COMM_PARTNERS.PARTNER_ID))
+                                 .where(CONNECTOR_FEATURES.CONNECTOR_PK.equal(connectorPk))
+                                 .fetchMaps();
+
+        for (Map<String, Object> r : result) {
+            String uriString = r.get("url").toString();
+            String apikey = "";
+            if (r.get("apikey") != null) {
+                apikey = r.get("apikey").toString();
+            }
             try {
                 URI uri = new URIBuilder(uriString+"/input/post").setParameter("time", Long.toString(postData.timeInSec))
                                                        .setParameter("node", postData.node)
                                                        .setParameter("fulljson", postData.json)
-                                                       .setParameter("apikey", emon.getApikey())
+                                                       .setParameter("apikey", apikey)
                                                        .build();
 
-            //log.info("posting " + uri.toString());
+            log.info("posting " + uri.toString());
             String responseBody = httpClient.execute(new HttpGet(uri), new BasicResponseHandler());
             log.info("emonpub {} response: {}", uriString, responseBody);
             } catch (IOException e) {
-                log.error("emonpub call failed", e);
+                log.error("emonpub call failed {}", e.toString());
             } catch (URISyntaxException e) {
-                log.error("emonpub uri is not valid", e);
+                log.error("emonpub uri is not valid {}", e);
             }
         }
+
     }
 
     private static List<PostEmonData> getData(String chargeBoxId, List<MeterValue> values, int connectorId) {
@@ -126,6 +148,16 @@ public class MeasurementExportServiceImpl implements MeasurementExportService {
         return postDataList;
     }
     
+    // copied from OcppServerRepositoryImpl.java - TBD refactor common code
+    private int getConnectorPkFromConnector(DSLContext ctx, String chargeBoxIdentity, int connectorId) {
+        return ctx.select(CONNECTOR.CONNECTOR_PK)
+                  .from(CONNECTOR)
+                  .where(CONNECTOR.CHARGE_BOX_ID.equal(chargeBoxIdentity))
+                  .and(CONNECTOR.CONNECTOR_ID.equal(connectorId))
+                  .fetchOne()
+                  .value1();
+    }
+
     @Builder
     private static class PostEmonData {
         private final long timeInSec;
