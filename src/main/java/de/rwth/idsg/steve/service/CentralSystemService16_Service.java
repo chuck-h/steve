@@ -1,13 +1,17 @@
 package de.rwth.idsg.steve.service;
 
 import de.rwth.idsg.steve.ocpp.OcppProtocol;
+import de.rwth.idsg.steve.ocpp.OcppTransport;
 import de.rwth.idsg.steve.repository.ChargePointRepository;
 import de.rwth.idsg.steve.repository.OcppServerRepository;
 import de.rwth.idsg.steve.repository.SettingsRepository;
+import de.rwth.idsg.steve.repository.dto.ChargePointSelect;
 import de.rwth.idsg.steve.repository.dto.InsertConnectorStatusParams;
 import de.rwth.idsg.steve.repository.dto.InsertTransactionParams;
 import de.rwth.idsg.steve.repository.dto.UpdateChargeboxParams;
 import de.rwth.idsg.steve.repository.dto.UpdateTransactionParams;
+import de.rwth.idsg.steve.web.dto.ocpp.RemoteStartTransactionParams;
+import de.rwth.idsg.steve.service.ChargePointService12_Client;
 import lombok.extern.slf4j.Slf4j;
 import ocpp.cs._2015._10.AuthorizeRequest;
 import ocpp.cs._2015._10.AuthorizeResponse;
@@ -35,7 +39,17 @@ import ocpp.cs._2015._10.StopTransactionRequest;
 import ocpp.cs._2015._10.StopTransactionResponse;
 import org.joda.time.DateTime;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
+import org.jooq.DSLContext;
+
+import java.util.List;
+import java.util.Map;
+import java.util.concurrent.TimeUnit;
+
+import static jooq.steve.db.tables.Connector.CONNECTOR;
+import static jooq.steve.db.tables.ConnectorFeatures.CONNECTOR_FEATURES;
+import static jooq.steve.db.tables.OcppTag.OCPP_TAG;
 
 /**
  * @author Sevket Goekay <goekay@dbis.rwth-aachen.de>
@@ -52,6 +66,11 @@ public class CentralSystemService16_Service {
     @Autowired private NotificationService notificationService;
     @Autowired private ChargePointHelperService chargePointHelperService;
     @Autowired private MeasurementExportService measurementExportService;
+
+    @Autowired private DSLContext ctx;
+    @Autowired
+    @Qualifier("ChargePointService16_Client")
+    private ChargePointService16_Client client16;
 
     public BootNotificationResponse bootNotification(BootNotificationRequest parameters, String chargeBoxIdentity,
                                                      OcppProtocol ocppProtocol) {
@@ -115,6 +134,21 @@ public class CentralSystemService16_Service {
 
         ocppServerRepository.insertConnectorStatus(params);
 
+        if (parameters.getStatus() == ChargePointStatus.PREPARING) {
+            // test for autostart feature
+            int connectorPk = getConnectorPkFromConnector(ctx, chargeBoxIdentity, parameters.getConnectorId());
+            List<Map<String, Object>> result = ctx.select(CONNECTOR_FEATURES.AUTOSTART_TAG)
+                                 .from(CONNECTOR_FEATURES)
+                                 .where(CONNECTOR_FEATURES.CONNECTOR_PK.equal(connectorPk))
+                                 .and(CONNECTOR_FEATURES.AUTOSTART_TAG.isNotNull())
+                                 .fetchMaps();
+            log.info("autostart check{}",result);
+            if (result.size() >0) {
+                String idTag = result.get(0).get("autostart_tag").toString();
+                autostartTransaction(chargeBoxIdentity, parameters.getConnectorId(), idTag);
+            }
+        }
+
         if (parameters.getStatus() == ChargePointStatus.FAULTED) {
             notificationService.ocppStationStatusFailure(
                     chargeBoxIdentity, parameters.getConnectorId(), parameters.getErrorCode().value());
@@ -122,6 +156,24 @@ public class CentralSystemService16_Service {
 
         return new StatusNotificationResponse();
     }
+
+    private Boolean autostartTransaction(String chargeBoxId, Integer connectorId, String idTag) {
+        Boolean success = false;
+        RemoteStartTransactionParams params = new RemoteStartTransactionParams();
+        params.setConnectorId(connectorId);
+        params.setIdTag(idTag);
+        params.setChargePointSelectList(List.of(new ChargePointSelect(OcppTransport.JSON, chargeBoxId)));
+        client16.remoteStartTransaction(params);
+        // TODO get success/failure status; temporary hack: delay for reply and assume ok
+        try {
+            TimeUnit.SECONDS.sleep(2);
+        }
+        catch(InterruptedException ex) {
+        } // never mind
+        success = true;
+        return success;
+    }
+
 
     public MeterValuesResponse meterValues(MeterValuesRequest parameters, String chargeBoxIdentity) {
         if (parameters.isSetMeterValue()) {
@@ -201,6 +253,16 @@ public class CentralSystemService16_Service {
         IdTagInfo idTagInfo = ocppTagService.getIdTagInfo(idTag, chargeBoxIdentity);
 
         return new AuthorizeResponse().withIdTagInfo(idTagInfo);
+    }
+
+    // copied from OcppServerRepositoryImpl.java - TBD refactor common code
+    private int getConnectorPkFromConnector(DSLContext ctx, String chargeBoxIdentity, int connectorId) {
+        return ctx.select(CONNECTOR.CONNECTOR_PK)
+                  .from(CONNECTOR)
+                  .where(CONNECTOR.CHARGE_BOX_ID.equal(chargeBoxIdentity))
+                  .and(CONNECTOR.CONNECTOR_ID.equal(connectorId))
+                  .fetchOne()
+                  .value1();
     }
 
     /**
